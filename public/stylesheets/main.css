@@ -1,0 +1,95 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    -webkit-margin-before: 0;
+    -webkit-margin-after: 0;
+}
+
+/* highlighit on focus */
+input, textarea, div[contenteditable] {
+    transition: all 0.10s ease-in-out;
+    -webkit-transition: all 0.10s ease-in-out;
+    -moz-transition: all 0.10s ease-in-out;
+    border-radius:3px;
+    -webkit-border-radius:3px;
+    -moz-border-radius:3px;
+    border:1px solid transparent;
+}
+input, textarea {
+    border-style: solid rgba(0,0,0,0.2);
+}
+input:focus, textarea:focus, div[contenteditable]:focus {
+    outline:none;
+    box-shadow: 0 0 8px rgba(31,64,255,0.8);
+    -webkit-box-shadow: 0 0 8px rgba(31,64,255,0.8); 
+    -moz-box-shadow: 0 0 8px rgba(31,64,255,0.8);
+    border:1px solid rgba(31,64,255, 0.5); 
+}
+
+/******************************/
+body {
+    background-color: #FFFFFC;
+}
+
+div.header {
+    padding: 2px 8px 2px 8px;
+    height: 48px;
+    color: #EEE;
+    background-color: #333;
+}
+
+div.header .app-title {
+    font-size: 20px;
+    height: 24px;
+    font-family: serif;
+}
+
+#main > div.workspace {
+    display: block;
+    margin-bottom: 9999px;
+    padding-bottom: -9999px;
+    -webkit-columns: 91mm auto;
+    -webkit-column-gap: 3mm;
+    -webkit-column-rule: dotted 1mm #FEFEFE;
+}
+
+/* generic cards */
+.index-card {
+    display: inline-block;
+    width: 91mm;
+    max-height: 55mm;
+    overflow: hidden;
+    -webkit-column-break-inside: avoid;
+}
+
+/* scene */
+div.scene-container{
+    border: 1px black solid;
+    color: #000000;
+    background-color: #FFFFFF;
+    margin-bottom: 2px;
+}
+
+div.scene-body {
+    padding: 2px;
+}
+
+div.scene-content {
+    padding: 4px;
+}
+
+.drag-handle {
+    cursor: move;
+}
+
+/* annotation */
+div.annotation-container {
+    position: absolute;
+    color: red;
+    background-color: #FFC;
+    min-width: 20px;
+    min-height: 20px;
+}
