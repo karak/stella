@@ -51,9 +51,12 @@ div.header .app-title {
     display: block;
     margin-bottom: 9999px;
     padding-bottom: -9999px;
-    -webkit-columns: 91mm auto;
+    -webkit-columns: auto auto;
+    -moz-columns: auto auto;
     -webkit-column-gap: 3mm;
+    -moz-column-gap: 3mm;
     -webkit-column-rule: dotted 1mm #FEFEFE;
+    -moz-column-rule: dotted 1mm #FEFEFE;
 }
 
 /* generic cards */
