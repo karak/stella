@@ -3,6 +3,8 @@
   , "version": "0.0.1"
   , "private": true
   , "dependencies": {
-      "express": "2.5.8"
+      "express": "2.5.8",
+      "mongodb": "1.2.5",
+      "node-promise": "0.5.4"
   }
 }

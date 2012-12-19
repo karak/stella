@@ -53,9 +53,12 @@ ko.bindingHandlers.positionOffset = {
         jQuery(element).css({left: position.left, top: position.top});
     }
 }
+
 /** viewmodels */
 function SceneVM (data) {
     var self = this;
+    
+    if ('_id' in data) self._id = data._id;
     
     self.title = ko.observable(data.title || '');
     self.titleEditing = ko.observable(false);
@@ -64,6 +67,16 @@ function SceneVM (data) {
     };
     
     self.content = ko.observable(data.content);
+    
+    self.saveForm = function (data) {
+        var ns = 'scenes';
+        data[ns] = data[ns] || [];
+        var mine = {title: self.title, content: self.content};
+        if ('_id' in self) {
+            mine['_id'] = self._id;
+        }
+        data[ns].push(mine);
+    };
 }
 
 function AnnnotationVM (data) {
@@ -86,11 +99,13 @@ function ProjectVM() {
     ]);
     
     self.save = function () {
+        var data = {};
+        ko.utils.arrayForEach(ko.utils.unwrapObservable(self['scenes']), function (item) { item.saveForm(data); });
         $.ajax({
             url: '/projects/1',
             type: 'post',
             contentType: 'application/json',
-            data: ko.toJSON(self)
+            data: ko.toJSON(data)
         })
     };
     
