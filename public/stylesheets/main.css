@@ -29,16 +29,42 @@ input:focus, textarea:focus, div[contenteditable]:focus {
     border:1px solid rgba(31,64,255, 0.5); 
 }
 
+html, body {
+    height: 100%;
+}
+
+#main {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0px 0 0 0;
+    overflow: auto;
+    height: 100%;
+    max-height:100%;
+}
+
+body > #main {
+    height: auto;
+}
+
 /******************************/
 body {
     background-color: #FFFFFC;
 }
 
 #header {
-    padding: 2px 8px 2px 8px;
+    /*
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    */
     height: 24px;
+    padding: 2px 8px 2px 8px;
     color: #EEE;
     background-color: #333;
+    z-index: 100;
 }
 
 #header .app-title {
@@ -48,8 +74,7 @@ body {
 
 #main > div.workspace {
     display: block;
-    margin-bottom: 9999px;
-    padding-bottom: -9999px;
+    margin-top: 60px;
     -webkit-columns: 91mm auto;
     -webkit-column-gap: 3mm;
     -webkit-column-rule: dotted 1mm #FEFEFE;
@@ -67,6 +92,7 @@ body {
 /* scene */
 div.scene-container{
     border: 1px black solid;
+    border-radius: 6px;
     color: #000000;
     background-color: #FFFFFF;
     margin-bottom: 2px;
@@ -76,12 +102,37 @@ div.scene-body {
     padding: 2px;
 }
 
+div.scene-title {
+    position: relative;
+    padding: 2px 4px 2px 4px;
+}
+
+a.scene-select-button {
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 1px;
+    background-color: white;
+}
+
 div.scene-content {
     padding: 4px;
 }
 
 .drag-handle {
     cursor: move;
+}
+
+/*-- scene state */
+div.scene-container.selected {
+    border-color: #707080;
+}
+div.scene-container.selected div.scene-title {
+    background-image: none;
+    background-color: #C0C0DA;
 }
 
 /* annotation */

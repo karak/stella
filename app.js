@@ -51,21 +51,34 @@ app.post('/projects/:projectId', function (req, res) {
                 
                 input.forEach(function (item, i) {
                     var defered = new promise.defer();
+                    var _id = BSON.ObjectID(item._id);
                     //TODO: escape '$'
-                    if ('_id' in item) {
-                        var _id = BSON.ObjectID(item._id);
-                        delete item._id;
-                        collection.update({'_id': _id}, {$set: item}, {w: 1, multi:false, upsert: true}, function (err, result) {
-                            if(err) { return console.dir('update failed:' + err); }
-                            else { output[i] = { _id: _id }; }  //return only _id
+                    if ('_id' in item) { //exisitng
+                        if ('_destroy' in item) {
+                            collection.remove({'_id': _id}, {w: 1, multi:false}, function (err, result) {
+                                if(err) { return console.dir('update failed:' + err); }
+                                else { output[i] = { _id: _id }; }  //return only _id
+                                defered.resolve();
+                            });
+                        } else {
+                            delete item._id;
+                            collection.update({'_id': _id}, {$set: item}, {w: 1, multi:false, upsert: true}, function (err, result) {
+                                if(err) { return console.dir('update failed:' + err); }
+                                else { output[i] = { _id: _id }; }  //return only _id
+                                defered.resolve();
+                            });
+                        }
+                    } else { //new comer
+                        if ('_destroy' in item) {
+                            output[i] = { _id: _id };  //return only _id
                             defered.resolve();
-                        });
-                    } else {
-                        collection.insert(item, {w: 1}, function (err, result) {
-                            if(err) { return console.dir('insert failed:' + err); }
-                            else { output[i] = result; }  //return new document
-                            defered.resolve();
-                        });
+                        } else {
+                            collection.insert(item, {w: 1}, function (err, result) {
+                                if(err) { return console.dir('insert failed:' + err); }
+                                else { output[i] = result; }  //return new document
+                                defered.resolve();
+                            });
+                        }
                     }
                     promises.push(defered.promise);
                 });

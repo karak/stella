@@ -75,8 +75,17 @@ function SceneVM (data) {
         if ('_id' in self) {
             mine['_id'] = self._id;
         }
+        if ('_destroy' in self) {
+            mine['_destroy'] = self._destroy;
+        }
         data[ns].push(mine);
     };
+    
+    //selection
+    self.selected = ko.observable(false);
+    self.toggleSelected = function () {
+        self.selected(!self.selected());
+    }
 }
 
 function AnnnotationVM (data) {
@@ -93,9 +102,16 @@ function AnnnotationVM (data) {
 function ProjectVM() {
     var self = this;
     self.scenes = ko.observableArray([]);
+    self.insertSceneAfter = function (before) {
+        var index = self.scenes.indexOf(before);
+        if (index === 1) {
+            index = self.scenes.length;
+        }
+        self.scenes.splice(index, 0, new SceneVM({}));
+    }
     
     self.annotations = ko.observableArray([
-        new AnnnotationVM({position: { left: 10, top: 10 }, content: '...'})
+        new AnnnotationVM({position: { left: 10, top: 90 }, content: '...'})
     ]);
     
     self.save = function () {
@@ -116,6 +132,14 @@ function ProjectVM() {
             );
         });
     };
+    
+    self.destroy = function () {
+        ko.utils.arrayForEach(ko.utils.unwrapObservable(self.scenes), function (item) {
+            if (item.selected()) {
+                self.scenes.destroy(item);
+            }
+        });
+    }
 }
 
 
@@ -128,7 +152,7 @@ nicEdit = new nicEditor({
         'hr', /*'image', 'upload',*/
         'xhtml'
     ],
-    //TODO, iconPath: '',
+    iconsPath: '/images/nicEditorIcons.gif',
 
 });
 
