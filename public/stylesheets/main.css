@@ -34,16 +34,15 @@ body {
     background-color: #FFFFFC;
 }
 
-div.header {
+#header {
     padding: 2px 8px 2px 8px;
-    height: 48px;
+    height: 24px;
     color: #EEE;
     background-color: #333;
 }
 
-div.header .app-title {
+#header .app-title {
     font-size: 20px;
-    height: 24px;
     font-family: serif;
 }
 
@@ -51,12 +50,9 @@ div.header .app-title {
     display: block;
     margin-bottom: 9999px;
     padding-bottom: -9999px;
-    -webkit-columns: auto auto;
-    -moz-columns: auto auto;
+    -webkit-columns: 91mm auto;
     -webkit-column-gap: 3mm;
-    -moz-column-gap: 3mm;
     -webkit-column-rule: dotted 1mm #FEFEFE;
-    -moz-column-rule: dotted 1mm #FEFEFE;
 }
 
 /* generic cards */

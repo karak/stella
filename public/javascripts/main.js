@@ -1,5 +1,59 @@
-(function ($, ko) {
-    
+jQuery(function ($) {
+
+//knockout singleton
+//var ko = ko;
+
+//instanciate nicEditor
+var nicEdit;
+
+/** extend knockout */
+//contenteditable
+ko.bindingHandlers.htmlValue = {
+    init: function(element, valueAccessor, allBindingsAccessor) {
+        ko.utils.registerEventHandler(element, "blur", function() {
+            var modelValue = valueAccessor();
+            var elementValue = element.innerHTML;
+            if (ko.isWriteableObservable(modelValue)) {
+                modelValue(elementValue);
+            } else { //handle non-observable one-way binding
+                var allBindings = allBindingsAccessor();
+                if (allBindings['_ko_property_writers'] && allBindings['_ko_property_writers'].htmlValue) allBindings['_ko_property_writers'].htmlValue(elementValue);
+            }
+        });
+        
+        //edit by nickEdit
+        nicEdit.addInstance(element);
+    },
+    update: function(element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor()) || "";
+        element.innerHTML = value;
+    }
+};
+
+//draggable
+ko.bindingHandlers.positionOffset = {
+    init: function (element, valueAccessor) {
+        var position = ko.utils.unwrapObservable(valueAccessor());
+        jQuery(element).draggable({
+            handle: '>.drag-handle',
+            drag: function (e, ui) {
+                position.left(ui.position.left);
+                position.top(ui.position.top);
+            }
+        }).css({
+            left: position.left(),
+            top: position.top()
+        });
+    },
+    update: function(element, valueAccessor) {
+        var position =  ko.utils.unwrapObservable(valueAccessor());
+        if (typeof (position) === 'function') {
+            position = position();
+        }
+        jQuery(element).css({left: position.left, top: position.top});
+    }
+}
+/** viewmodels */
 function SceneVM (data) {
     var self = this;
     
@@ -49,8 +103,26 @@ function ProjectVM() {
     };
 }
 
+
+nicEdit = new nicEditor({
+    buttonList : [
+        'forecolor', 'bold','italic','underline', 'link', 'unlink',
+        'indent', 'outdent',
+        'left', 'center', 'right', 'justify',
+        'ol', 'ul', 
+        'hr', /*'image', 'upload',*/
+        'xhtml'
+    ],
+    //TODO, iconPath: '',
+
+});
+
 var theProject = new ProjectVM();
 theProject.load();
 ko.applyBindings(theProject);
 
-} (jQuery, ko));
+/* create panel with save action of the project view-model */
+nicEdit.setPanel('myNicPanel');
+//TODO: bind save
+
+});

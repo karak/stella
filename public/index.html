@@ -2,59 +2,18 @@
 <html>
 <head>
     <title>Stella</title>
+    
+    <!-- jQuery -->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.19/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.19/themes/flick/jquery-ui.css">
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.19/i18n/jquery-ui-i18n.min.js"></script>
     
+    
+    <!-- nickEdit -->
+    <script type="text/javascript" src="http://js.nicedit.com/nicEdit-latest.js"></script>
+    
     <script type="text/javascript" src="./javascripts/knockout-2.2.0.js"></script>
-    
-    <script type="text/javascript">
-    //contenteditable
-    ko.bindingHandlers.htmlValue = {
-        init: function(element, valueAccessor, allBindingsAccessor) {
-            ko.utils.registerEventHandler(element, "blur", function() {
-                var modelValue = valueAccessor();
-                var elementValue = element.innerHTML;
-                if (ko.isWriteableObservable(modelValue)) {
-                    modelValue(elementValue);
-                } else { //handle non-observable one-way binding
-                    var allBindings = allBindingsAccessor();
-                    if (allBindings['_ko_property_writers'] && allBindings['_ko_property_writers'].htmlValue) allBindings['_ko_property_writers'].htmlValue(elementValue);
-                }
-            });
-        },
-        update: function(element, valueAccessor) {
-            var value = ko.utils.unwrapObservable(valueAccessor()) || "";
-            element.innerHTML = value;
-        }
-    };
-    
-    //draggable
-    ko.bindingHandlers.positionOffset = {
-        init: function (element, valueAccessor) {
-            var position = ko.utils.unwrapObservable(valueAccessor());
-            jQuery(element).draggable({
-                handle: '>.drag-handle',
-                drag: function (e, ui) {
-                    position.left(ui.position.left);
-                    position.top(ui.position.top);
-                }
-            }).css({
-                left: position.left(),
-                top: position.top()
-            });
-        },
-        update: function(element, valueAccessor) {
-            var position =  ko.utils.unwrapObservable(valueAccessor());
-            if (typeof (position) === 'function') {
-                position = position();
-            }
-            jQuery(element).css({left: position.left, top: position.top});
-        }
-    }
-        
-    </script>
     
     <!-- special web fonts -->
     <link href='http://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps:bold&effect=shadow-multiple&text=Stella' rel='stylesheet' type='text/css'>
@@ -63,10 +22,17 @@
     
 </head>
 <body>
-<div class="header">
-    <h1 class="app-title font-effect-shadow-multiple" style="font-family: 'Oleo Script Swash Caps', cursive">Stella</span></h1>
-    <button id="project-save-button" data-bind="click: save">Save</button>
+<div id="header">
+    <a href="#" id="project-save-button" data-bind="click: save" title="save the project">
+        <img style="width:24px;height:24px" src="images/save_icon&nbsp;24.png" />
+    </a>
+    <div style="float: right">
+        <span class="app-title font-effect-shadow-multiple" style="font-family: 'Oleo Script Swash Caps', cursive">Stella</span>
+    </div>
 </div>
+<!-- toolbar 2nd -->
+<div id="myNicPanel"></div>
+
 
 <div id="main" class="stella-view">
     
