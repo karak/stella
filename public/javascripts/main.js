@@ -55,6 +55,13 @@ ko.bindingHandlers.positionOffset = {
 }
 
 /** viewmodels */
+function IssueVM(data) {
+    var self = this;
+
+    self.content = ko.observable(data.content || '');
+    self.resolved = ko.observable(data.resolved || false);
+}
+
 function SceneVM (data) {
     var self = this;
     
@@ -66,12 +73,25 @@ function SceneVM (data) {
         self.titleEditing(true);
     };
     
-    self.content = ko.observable(data.content);
-    
+    self.content = ko.observable(data.content || '<p></p>');
+
+	//issues
+	self.issues = ko.observableArray(ko.utils.arrayMap(data.issues, function (data) { return new IssueVM(data); }));
+	self.addIssue = function () {
+        self.issues.push(new IssueVM({}));
+    };
+
     self.saveForm = function (data) {
         var ns = 'scenes';
         data[ns] = data[ns] || [];
-        var mine = {title: self.title, content: self.content};
+        var mine = {
+			title: self.title(),
+			content: self.content(), 
+			issues: ko.utils.arrayMap(self.issues(), function (issue) { return {
+				content: issue.content(),
+				resolved: issue.resolved()
+			}})
+		};
         if ('_id' in self) {
             mine['_id'] = self._id;
         }
@@ -86,6 +106,7 @@ function SceneVM (data) {
     self.toggleSelected = function () {
         self.selected(!self.selected());
     }
+	return this;
 }
 
 function AnnnotationVM (data) {
@@ -107,35 +128,73 @@ function ProjectVM() {
         if (index === 1) {
             index = self.scenes.length;
         }
-        self.scenes.splice(index, 0, new SceneVM({}));
+        self.scenes.splice(index + 1, 0, new SceneVM({}));
     }
     
     self.annotations = ko.observableArray([
         new AnnnotationVM({position: { left: 10, top: 90 }, content: '...'})
     ]);
+
+	self.synchronizing = ko.observable(false);
     
     self.save = function () {
+		if (self.synchronizing()) return;
+
+		self.synchronizing(true);
+		console.log(self.scenes());
         var data = {};
-        ko.utils.arrayForEach(ko.utils.unwrapObservable(self['scenes']), function (item) { item.saveForm(data); });
+        ko.utils.arrayForEach(self.scenes(), function (item) { item.saveForm(data); });
+		console.log('post:', data);
         $.ajax({
             url: '/projects/1',
             type: 'post',
             contentType: 'application/json',
-            data: ko.toJSON(data)
-        })
+            data: JSON.stringify(data),
+			success: function (response) {
+				var i, n, scenes, scene, result, toRemove;
+				self.scenes.valueWillMutate();
+				scenes = self.scenes();
+				n = scenes.length;
+				toRemove = [];
+				for (i = 0; i < n; ++i) {
+					scene = scenes[i], result = response.scenes[i];
+					if (result !== null && result !== undefined) {
+						if (scene._destroy) {
+							toRemove.push(scene);
+						} else {
+							if ('_id' in scene) {
+							} else {
+								scene._id = result._id;
+								scene.title(result.title);
+								scene.content(result.content);
+							}
+						}
+					} else {
+					}
+				};
+				$.each(toRemove, function (){ self.scenes.remove(this); });
+				self.scenes.valueHasMutated();
+			}
+        });
+		self.synchronizing(false);
     };
     
     self.load = function () {
+		if (self.synchronizing()) return;
+
+		self.synchronizing(true);
         $.getJSON('projects/1/scenes.json', function (response) {
-            self.scenes(
-                $.map(response, function (data) { return new SceneVM(data); })
-            );
+			self.scenes($.map(response, function (data) { return new SceneVM(data); }));
+			self.synchronizing(false);
+			//TODO: failure case
         });
     };
     
     self.destroy = function () {
-        ko.utils.arrayForEach(ko.utils.unwrapObservable(self.scenes), function (item) {
-            if (item.selected()) {
+		if (self.synchronizing()) return;
+
+        ko.utils.arrayForEach(self.scenes(), function (item) {
+            if (item.selected() && item._destroy !== true) {
                 self.scenes.destroy(item);
             }
         });
@@ -156,12 +215,22 @@ nicEdit = new nicEditor({
 
 });
 
-var theProject = new ProjectVM();
-theProject.load();
-ko.applyBindings(theProject);
+var root = (new function () {
+	var self = this;
+
+	theProject = new ProjectVM();
+	theProject.load(); //load initially
+
+	self.selectedProject = ko.observable(theProject);
+
+	self.goToDashboard = function () {
+		self.selectedProject(null);
+	};
+} ());
+ko.applyBindings(root);
+
 
 /* create panel with save action of the project view-model */
 nicEdit.setPanel('myNicPanel');
-//TODO: bind save
 
 });

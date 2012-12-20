@@ -8,6 +8,23 @@ h1 {
     -webkit-margin-after: 0;
 }
 
+a, a:hover, a:active, a:visited {
+    color: inherit;
+    text-decoration: inherit;
+}
+
+input.span-like {
+-webkit-appearance: normal;
+display: inline;
+margin: 0;
+padding: 0;
+border: none 0 inherit;
+background-color: inherit;
+text-transform: inherit;
+text-indent: inherit;
+text-shadow: inherit;
+}
+
 /* highlighit on focus */
 input, textarea, div[contenteditable] {
     transition: all 0.10s ease-in-out;
@@ -21,11 +38,15 @@ input, textarea, div[contenteditable] {
 input, textarea {
     border-style: solid rgba(0,0,0,0.2);
 }
-input:focus, textarea:focus, div[contenteditable]:focus {
+
+:focus {
     outline:none;
     box-shadow: 0 0 8px rgba(31,64,255,0.8);
     -webkit-box-shadow: 0 0 8px rgba(31,64,255,0.8); 
     -moz-box-shadow: 0 0 8px rgba(31,64,255,0.8);
+}
+
+input:focus, textarea:focus, div[contenteditable]:focus {
     border:1px solid rgba(31,64,255, 0.5); 
 }
 
@@ -34,9 +55,6 @@ html, body {
 }
 
 #main {
-    position: absolute;
-    top: 0;
-    left: 0;
     margin: 0;
     padding: 0px 0 0 0;
     overflow: auto;
@@ -53,18 +71,45 @@ body {
     background-color: #FFFFFC;
 }
 
-#header {
-    /*
+#toolbar {
     position: fixed;
     left: 0;
     top: 0;
     width: 100%;
+}
+    
+#header {
+    /*
     */
     height: 24px;
     padding: 2px 8px 2px 8px;
     color: #EEE;
     background-color: #333;
     z-index: 100;
+}
+
+#header a.button {
+    position: relative;
+    top: 3px;
+}
+#header a.button img {
+    opacity: 0.8;
+}
+#header a.button:hover img {
+    opacity: 1.0;
+}
+
+#header span.project-name-container {
+    display: inline-block;
+    position: relative;
+    top: 2px;
+    width: 240px;
+    border-radius: 3px;
+    padding: 2px 4px;
+    line-height: 16px;
+    background-color:#FFFFFF;
+    color: #000000;
+    font-weight: bold;
 }
 
 #header .app-title {
@@ -77,21 +122,20 @@ body {
     margin-top: 60px;
     -webkit-columns: 91mm auto;
     -webkit-column-gap: 3mm;
-    -webkit-column-rule: dotted 1mm #FEFEFE;
+    -webkit-column-rule: none;
 }
 
 /* generic cards */
 .index-card {
     display: inline-block;
     width: 91mm;
-    max-height: 55mm;
     overflow: hidden;
     -webkit-column-break-inside: avoid;
 }
 
 /* scene */
 div.scene-container{
-    border: 1px black solid;
+    border: 1px #888 solid;
     border-radius: 6px;
     color: #000000;
     background-color: #FFFFFF;
@@ -105,6 +149,7 @@ div.scene-body {
 div.scene-title {
     position: relative;
     padding: 2px 4px 2px 4px;
+    text-shadow: 1px 1px 0 #FFFFFF;
 }
 
 a.scene-select-button {
@@ -118,8 +163,10 @@ a.scene-select-button {
     background-color: white;
 }
 
+
 div.scene-content {
     padding: 4px;
+    max-height: 30mm;
 }
 
 .drag-handle {
@@ -133,6 +180,27 @@ div.scene-container.selected {
 div.scene-container.selected div.scene-title {
     background-image: none;
     background-color: #C0C0DA;
+}
+
+/* --issues */
+hr.scene-body-separator {
+    margin-top: 12px;
+}
+
+ol.issue-area {
+    position: relative;
+    margin: 12px 0 12px 0px;
+    padding: 0 0 0 -8px;
+    min-height: 8px;
+    list-style: decimal outside;
+    color: #4F0030;
+    font-family: Verdana,Arial,"メイリオ",Meiryo,"ヒラギノ角ゴPro W3","Hiragino Kaku Gothic Pro","ＭＳ Ｐゴシック",sans-serif;
+}
+
+li.issue-container {
+}
+input.issue-content:empty {
+  content: 'input new issue'
 }
 
 /* annotation */

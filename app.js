@@ -75,7 +75,7 @@ app.post('/projects/:projectId', function (req, res) {
                         } else {
                             collection.insert(item, {w: 1}, function (err, result) {
                                 if(err) { return console.dir('insert failed:' + err); }
-                                else { output[i] = result; }  //return new document
+                                else { output[i] = result[0]; }  //return new document
                                 defered.resolve();
                             });
                         }
