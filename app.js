@@ -61,6 +61,7 @@ app.post('/projects/:projectId', function (req, res) {
                                 defered.resolve();
                             });
                         } else {
+                            item._ord = i;
                             delete item._id;
                             collection.update({'_id': _id}, {$set: item}, {w: 1, multi:false, upsert: true}, function (err, result) {
                                 if(err) { return console.dir('update failed:' + err); }
@@ -73,6 +74,7 @@ app.post('/projects/:projectId', function (req, res) {
                             output[i] = { _id: _id };  //return only _id
                             defered.resolve();
                         } else {
+                            item._ord = i;
                             collection.insert(item, {w: 1}, function (err, result) {
                                 if(err) { return console.dir('insert failed:' + err); }
                                 else { output[i] = result[0]; }  //return new document
@@ -109,7 +111,7 @@ app.get('/projects/:projectId/scenes.json', function (req, res) {
     
         db.collection('scenes', function(err, collection) {
             if(err) { return console.dir(err); }
-            collection.find({}).toArray(function (err, result) {
+            collection.find({}, {_ord: 0}).sort({_ord: 1}).toArray(function (err, result) {
                 if(err) { return console.dir(err); }
 
                 res.json(result);
