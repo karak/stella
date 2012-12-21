@@ -94,6 +94,11 @@ app.post('/projects/:projectId', function (req, res) {
 });
 
 app.get('/projects/:projectId/scenes.json', function (req, res) {
+    if (req.params.projectId !== '1') {
+        res.status(404);
+        res.end('');
+        return;
+    }
     /*
     var stubData = [
         {title:'scene-1', content: 'Hello!<p>This is an <strong>example</strong> paragraph</p>'},
@@ -113,6 +118,28 @@ app.get('/projects/:projectId/scenes.json', function (req, res) {
                 if(err) { return console.dir(err); }
 
                 res.json(result);
+            });
+        });
+    });
+});
+
+app.get('/projects/summary.json', function (req, res) {
+    MongoClient.connect(mongoUri, function(err, db) {
+        if(err) { return console.dir(err); }
+    
+        db.collection('scenes', function(err, collection) {
+            if(err) { return console.dir(err); }
+            collection.find({}, {'issues': 1 /*{'$if' : {resolved: false}}*/}).toArray(function (err, result) {
+                if(err) { return console.dir(err); }
+		var sceneCount = result.length;
+		var allIssues = [];
+		result.forEach(function (data) {
+			allIssues = allIssues.concat(data.issues);
+		});
+		
+                res.json([{
+			_id: 1, sceneCount: sceneCount, issues: allIssues
+		}]);
             });
         });
     });

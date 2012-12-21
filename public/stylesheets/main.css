@@ -211,3 +211,26 @@ div.annotation-container {
     min-width: 20px;
     min-height: 20px;
 }
+
+/* gadget */
+.gadget {
+    display: inline-block;
+    margin: 0;
+    padding: 8px;
+    border: solid 1px #CCC;
+    border-radius: 18px 2px 2px 2px;
+}
+.gadget>.gadget-header {
+    border: none 0px;
+    padding: 4px;
+}
+.gadget>.gadget-body {
+    min-height: 8px;
+    padding: 4px;
+}
+
+/* gadet: project summary */
+.project-summary-project-name {
+    font-size: 24px;
+}
+

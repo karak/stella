@@ -4,27 +4,28 @@
     <title>Stella</title>
     
     <!-- jQuery -->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.19/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.19/themes/flick/jquery-ui.css">
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.19/i18n/jquery-ui-i18n.min.js"></script>
-    
+    <script src="./javascripts/jquery-1.6.2.js"></script>
+    <script src="./javascripts/jquery.ui.core.js"></script>
+    <script src="./javascripts/jquery-ui-1.8.13.custom.min.js"></script>
+    <link rel="stylesheet" href="./stylesheets/jquery-ui-1.8.13.custom.css" />
     
     <!-- nickEdit -->
     <script type="text/javascript" src="./javascripts/nicEdit.js"></script>
     
-    <!--<script type="text/javascript" src="./javascripts/knockout-2.2.0.js"></script>-->
-    <script type="text/javascript" src="./javascripts/knockout-2.2.0.debug.js"></script>
+    <script type="text/javascript" src="./javascripts/knockout-2.2.0.js"></script>
+    <!-- <script type="text/javascript" src="./javascripts/knockout-2.2.0.debug.js"></script>-->
     
     <!-- special web fonts -->
+<!--
     <link href='http://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps:bold&effect=shadow-multiple&text=Stella' rel='stylesheet' type='text/css'>
+-->
     
     <link rel="stylesheet" href="./stylesheets/main.css">
     
 </head>
 <body>
 
-	<div id="main" class="stella-view" data-bind="with: selectedProject">
+	<div id="main" class="stella-view" data-bind="visible: selectedProject, with: selectedProject">
 		<div class="workspace">
 			<!-- ko foreach: scenes -->
 				<div class="index-card scene-container" data-bind="css: {selected: selected}">
@@ -79,7 +80,7 @@
 				</a>
 			<!-- /ko -->
 			<div style="float: right">
-				<a href="#" class="button" data-bind="click: goToDashboard" title="dashboard">
+				<a href="#!/dashboard" class="button" data-bind="click: goToDashboard" title="dashboard">
 					<img style="width:24px;height:24px" src="images/dashboard_icon&24.png" />
 				</a>
 				<span class="app-title font-effect-shadow-multiple" style="font-family: 'Oleo Script Swash Caps', cursive">Stella</span>
@@ -89,6 +90,35 @@
 		<div id="myNicPanel" data-bind="visible: selectedProject"></div>
 	</div>
 
+<div id="#dashboard-main" style="margin-top:30px" data-bind="
+	visible: !selectedProject(),
+	with: dashboard
+">
+	 <div class="project-summary" data-bind="
+		with: projectSummary,
+		css: {loading: projectSummary.loading()}
+	">
+		<h3>Project Summary</h3>
+		<div data-bind="foreach: items">
+			<div class="gadget" style="float:both">
+				<div>
+					<div class="gadget-header">
+					<a href="#!/projects/1" data-bind=" click: function () {$root.goToProject(1)}">
+						<img style="width:24px;height:24px" src="./images/book_side_icon&24.png" />
+						<span class="project-summary-project-name">Project name</span>
+					</a>
+					</div>
+					<div style="display:inline-block" title="number of scenes">
+						<img style="width:16px;height:16px" src="./images/document_icon&16.png" /><span style="font-size:0.7em">&times;</span><span data-bind="text:sceneCount"></span>
+					</div>
+					<ol class="project-summary-issue-list" data-bind="foreach: issues">
+						<li><span data-bind="text: content"></span></li>
+					</ol>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
 <script type="text/javascript" src="./javascripts/main.js"></script>
 </body>
 </html>

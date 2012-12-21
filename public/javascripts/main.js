@@ -120,8 +120,11 @@ function AnnnotationVM (data) {
     self.content = ko.observable(data.content);
 }
 
-function ProjectVM() {
+function ProjectVM(projectId) {
     var self = this;
+
+    self.projectId = projectId;
+
     self.scenes = ko.observableArray([]);
     self.insertSceneAfter = function (before) {
         var index = self.scenes.indexOf(before);
@@ -183,7 +186,7 @@ function ProjectVM() {
 		if (self.synchronizing()) return;
 
 		self.synchronizing(true);
-        $.getJSON('projects/1/scenes.json', function (response) {
+        $.getJSON('projects/'+projectId+'/scenes.json', function (response) {
 			self.scenes($.map(response, function (data) { return new SceneVM(data); }));
 			self.synchronizing(false);
 			//TODO: failure case
@@ -218,19 +221,51 @@ nicEdit = new nicEditor({
 var root = (new function () {
 	var self = this;
 
-	theProject = new ProjectVM();
-	theProject.load(); //load initially
+	self.selectedProject = ko.observable(null);
 
-	self.selectedProject = ko.observable(theProject);
+	self.dashboard = (new function () {
+		var self = this;
+		self.projectSummary = (new function () {
+			var self = this;
+			self.items = ko.observableArray([]);
+
+			self.loading = ko.observable(false);
+			self.load = function () {
+				if (self.loading()) return;
+				self.loading(true);
+				//TODO: return promise
+				$.getJSON('/projects/summary.json', function (response) {
+					self.items(ko.utils.arrayMap(response, function (data) {
+						return data;
+					}));
+					self.loading(false);
+				});
+			};
+		} ());
+
+		self.load = function () {
+			self.projectSummary.load();
+		};
+	} ());
 
 	self.goToDashboard = function () {
 		self.selectedProject(null);
+		self.dashboard.load(); //refresh!
 	};
+
+	self.goToProject = function (projectId) {
+		var theProject = new ProjectVM(projectId);
+		theProject.load();
+		self.selectedProject(theProject);
+	};
+
 } ());
+
 ko.applyBindings(root);
-
-
 /* create panel with save action of the project view-model */
 nicEdit.setPanel('myNicPanel');
+
+//initial page
+root.goToDashboard();
 
 });
