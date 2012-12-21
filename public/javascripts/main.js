@@ -68,12 +68,12 @@ function SceneVM (data) {
     if ('_id' in data) self._id = data._id;
     
     self.title = ko.observable(data.title || '');
-    self.titleEditing = ko.observable(false);
-    self.editTitle = function () {
-        self.titleEditing(true);
-    };
     
     self.content = ko.observable(data.content || '<p></p>');
+    self.shortenContent = ko.computed(function () {
+        var full = $('<div>').html(self.content()).text();
+        return full.length > 80? full.substring(0, 80 - 3) + '...'  : full;
+    }, self);
 
 	//issues
 	self.issues = ko.observableArray(ko.utils.arrayMap(data.issues, function (data) { return new IssueVM(data); }));
@@ -105,19 +105,8 @@ function SceneVM (data) {
     self.selected = ko.observable(false);
     self.toggleSelected = function () {
         self.selected(!self.selected());
-    }
+    };
 	return this;
-}
-
-function AnnnotationVM (data) {
-    var self = this;
-    
-    self.position = ko.observable({
-        left: ko.observable(data.position.left),
-        top: ko.observable(data.position.top)
-    });
-    
-    self.content = ko.observable(data.content);
 }
 
 function ProjectVM(projectId) {
@@ -126,19 +115,17 @@ function ProjectVM(projectId) {
     self.projectId = projectId;
 
     self.scenes = ko.observableArray([]);
-    self.insertSceneAfter = function (before) {
+    self.insertScene = function (before) {
+        var newScene = new SceneVM({});
         var index = self.scenes.indexOf(before);
-        if (index === 1) {
-            index = self.scenes.length;
+        if (index !== -1) {
+            self.scenes.splice(index, 0, newScene);
+        } else {
+            self.scenes.push(newScene);
         }
-        self.scenes.splice(index + 1, 0, new SceneVM({}));
-    }
+    };
     
-    self.annotations = ko.observableArray([
-        new AnnnotationVM({position: { left: 10, top: 90 }, content: '...'})
-    ]);
-
-	self.synchronizing = ko.observable(false);
+    self.synchronizing = ko.observable(false);
     
     self.save = function () {
 		if (self.synchronizing()) return;
@@ -201,7 +188,9 @@ function ProjectVM(projectId) {
                 self.scenes.destroy(item);
             }
         });
-    }
+    };
+    
+    return this;
 }
 
 
@@ -221,7 +210,17 @@ nicEdit = new nicEditor({
 var root = (new function () {
 	var self = this;
 
-	self.selectedProject = ko.observable(null);
+	self.projects = ko.observableArray([]);
+	self.selectedProject = ko.observable(null); //TODO: rename to active
+    
+        self.activeScene = ko.observable(null);
+        self.activateScene = function (scene) {
+		if (root.selectedProject().scenes.indexOf(scene) === -1) return;
+		
+		self.activeScene(scene);
+		$('#scene-edit .scene-content-edit').focus();
+		     //NOTE: consider no _id yet if routing
+        };
 
 	self.dashboard = (new function () {
 		var self = this;
@@ -249,23 +248,51 @@ var root = (new function () {
 	} ());
 
 	self.goToDashboard = function () {
-		self.selectedProject(null);
 		self.dashboard.load(); //refresh!
+		self.selectedProject(null).
+		     activeScene(null);
 	};
 
 	self.goToProject = function (projectId) {
 		var theProject = new ProjectVM(projectId);
 		theProject.load();
-		self.selectedProject(theProject);
+		self.selectedProject(theProject).
+		     activeScene(null);
 	};
-
 } ());
 
+var theProject = new ProjectVM(1);
+theProject.load(); //load initially
+root.projects ([theProject]);
+
+/* bind viewmodels with document */
 ko.applyBindings(root);
+
 /* create panel with save action of the project view-model */
 nicEdit.setPanel('myNicPanel');
 
-//initial page
-root.goToDashboard();
+/* create panel with save action of the project view-model 
+   attention: create and move since you must call when it is visible*/
+(function () {
+    var e = document.getElementById('myNicPanel');
+    nicEdit.setPanel(e);
+    //document.getElementById('sceneEdit').appendChild(e);
+} ());
 
+/* init & run routing */
+Sammy(function () {
+    this.get('/', function () {
+        //this.redirect('#!/dashboard');
+        this.redirect('#!/projects/1');
+    });
+    
+    this.get('#!/projects/:projectId', function () {
+        root.activeScene(null).
+             selectedProject(theProject);
+    });
+    
+    this.get('#!/dashboard', function () {
+        root.goToDashboard();
+    });
+}).run();
 });

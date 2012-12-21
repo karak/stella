@@ -76,6 +76,10 @@ body {
     left: 0;
     top: 0;
     width: 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
     
 #header {
@@ -110,6 +114,10 @@ body {
     background-color:#FFFFFF;
     color: #000000;
     font-weight: bold;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
 }
 
 #header .app-title {
@@ -117,39 +125,46 @@ body {
     font-family: serif;
 }
 
-#main > div.workspace {
-    display: block;
-    margin-top: 60px;
-    -webkit-columns: 91mm auto;
-    -webkit-column-gap: 3mm;
-    -webkit-column-rule: none;
-}
 
 /* generic cards */
 .index-card {
     display: inline-block;
-    width: 91mm;
+    width: 320px;
     overflow: hidden;
     -webkit-column-break-inside: avoid;
 }
 
 /* scene */
 div.scene-container{
+    position: relative;
+    display: block;
     border: 1px #888 solid;
     border-radius: 6px;
     color: #000000;
     background-color: #FFFFFF;
     margin-bottom: 2px;
+    overflow: visible;
+}
+
+div.scene-header {
+    position: relative;
+    height: 24px;
+    padding: 2px 4px 2px 4px;
 }
 
 div.scene-body {
     padding: 2px;
+    overflow: hidden;
 }
 
 div.scene-title {
-    position: relative;
-    padding: 2px 4px 2px 4px;
     text-shadow: 1px 1px 0 #FFFFFF;
+}
+
+a.scene-edit-button {
+    position: absolute;
+    right: 22px;
+    top: 2px;
 }
 
 a.scene-select-button {
@@ -163,10 +178,12 @@ a.scene-select-button {
     background-color: white;
 }
 
-
 div.scene-content {
     padding: 4px;
-    max-height: 30mm;
+    line-height: 120%;
+    max-height: 4em;
+    overflow: hidden;
+    white-space: pre-wrap;
 }
 
 .drag-handle {
@@ -180,6 +197,18 @@ div.scene-container.selected {
 div.scene-container.selected div.scene-title {
     background-image: none;
     background-color: #C0C0DA;
+}
+
+/* scene editor */
+#scene-edit {
+    display: block;
+    margin-top: 32px;
+    padding: 40px 8px 0 8px;
+}
+
+#scene-edit .scene-content-edit {
+    min-width: 360px;
+    min-height: 3em;
 }
 
 /* --issues */

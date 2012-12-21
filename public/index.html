@@ -8,6 +8,9 @@
     <script src="./javascripts/jquery.ui.core.js"></script>
     <script src="./javascripts/jquery-ui-1.8.13.custom.min.js"></script>
     <link rel="stylesheet" href="./stylesheets/jquery-ui-1.8.13.custom.css" />
+
+    <!-- Sammy -->
+    <script src="./javascripts/sammy-0.7.2.min.js"></script>
     
     <!-- nickEdit -->
     <script type="text/javascript" src="./javascripts/nicEdit.js"></script>
@@ -22,73 +25,86 @@
     
     <link rel="stylesheet" href="./stylesheets/main.css">
     
+    <script type="text/javascript" src="./javascripts/main.js"></script>
 </head>
 <body>
 
-	<div id="main" class="stella-view" data-bind="visible: selectedProject, with: selectedProject">
-		<div class="workspace">
-			<!-- ko foreach: scenes -->
-				<div class="index-card scene-container" data-bind="css: {selected: selected}">
-					<div class="ui-widget-header scene-title">
-						<span data-bind="visible: !titleEditing(), text: title">&nbsp;</span>
-						<a href="#" data-bind="visible: !titleEditing(), click: editTitle">edit</a>
-						<input data-bind="visible: titleEditing, value: title, hasfocus: titleEditing" />
-						<a href="#" class="checkbox scene-select-button" data-bind="click: toggleSelected" title="select/deselect">
-							<img style="width:16px;height:16px" src="images/checkbox_unchecked_icon&16.png" data-bind="visible: !selected()"/>
-							<img style="width:16px;height:16px" src="images/checkbox_checked_icon&16.png" data-bind="visible: selected"/>
-						</a>
-					</div>
-					<div class="scene-body">
-						<div class="scene-content" contenteditable="true" data-bind="htmlValue:content"></div>
-					</div>
+<div id="main" class="stella-view">
+        <div id="scene-navi" style="position:absolute;display:inline-block;width:364px; padding-top: 30px;overflow:auto;" data-bind="with: selectedProject, visible: selectedProject() && !activeScene()">
+		<!-- ko foreach: scenes -->
+			<div class="index-card scene-container" data-bind="css: {selected: selected}">
+    			<a href="#" style="position:absolute; top:-4px; right:-20px; display:inline-block; width: 10px;height: 10px; border: dashed 4px black; background-color:green;" data-bind="click: function (){ $parent.insertScene($data) }"></a>
+            
+				<div class="ui-widget-header scene-header">
+                    <a href="#" class="scene-edit-button" data-bind="click: $root.activateScene">
+						<img style="width:16px;height:16px" src="images/pencil_icon&16.png"/>
+                    </a>
+                    <span class="scene-title" data-bind="text: title"></span>
+					<a href="#" class="checkbox scene-select-button" data-bind="click: toggleSelected" title="select/deselect">
+						<img style="width:16px;height:16px" src="images/checkbox_unchecked_icon&16.png" data-bind="visible: !selected()"/>
+						<img style="width:16px;height:16px" src="images/checkbox_checked_icon&16.png" data-bind="visible: selected"/>
+					</a>
+				</div>
+				<div class="scene-body">
+					<div class="scene-content" data-bind="text:shortenContent"></div>
 					<hr class="scene-body-separator" />
-					<ol class="issue-area">
-						<!-- ko foreach: issues -->
-						<li class="issue-container">
-							<input class="span-like issue-content" data-bind="value:content" />
+					<ol class="issue-area" data-bind="foreach: issues">
+						<li class="issue-container" data-bind="text:content, visible: !resolved()" />
 						</li>
-						<!-- /ko -->
-						<a href="#" class="button" style="position:absolute; top:0; right: 4px" data-bind="click:addIssue">new issue</a>
 					</ol>
 				</div>
-				
-				<div style="height: 10px; border: dashed 4px black;" data-bind="click: function (){ $root.insertSceneAfter($data) }"></div>
-			<!--/ko -->
-			
-			<div style="-webkit-column-break-after: always;"></div>
-			
-			<div data-bind="foreach: annotations">
-				<div class="annotation-container"  data-bind="positionOffset: position">
-					<div contenteditable="true" data-bind="htmlValue:content"></div>
-				</div>
 			</div>
-		</div>
+		<!--/ko -->
+        </div>
+        
+        <div id="scene-edit" data-bind="with: activeScene">
+			<div class="scene-content-edit" contenteditable="true" data-bind="htmlValue:content"></div>
+			<hr class="scene-body-separator" />
+			<ol class="issue-area">
+				<!-- ko foreach: issues -->
+				<li class="issue-container">
+					<input class="span-like issue-content" data-bind="value:content, enable: !resolved()" />
+				</li>
+				<!-- /ko -->
+				<a href="#" class="button" style="position:absolute; top:0; right: 4px" data-bind="click:addIssue">new issue</a>
+			</ol>
 	</div>
 
 	<div id="toolbar">
 		<div id="header">
 			<!--ko with: selectedProject -->
-				<a href="#" id="project-save-button" class="button" data-bind="click: save" title="save the project">
-					<img style="width:16px;height:16px" src="images/save_icon&16.png" />
-				</a>
-				<a href="#" id="delete-button" class="button" data-bind="click: destroy" title="delete">
-					<img style="width:16px;height:16px" src="images/delete_icon&16.png" />
-				</a>
-				<span class="project-name-container">Project name</span>
-				<a href="#" id="project-refresh-button" class="button" data-bind="click: load" title="refresh the project">
+    			<a href="#" id="project-refresh-button" class="button" data-bind="click: load" title="refresh the project">
 					<img style="width:16px;height:16px" src="images/refresh_icon&16.png" />
 				</a>
+				<span class="project-name-container">Project name</span>
+    			<a href="#" id="project-save-button" class="button" data-bind="click: save" title="save the project">
+					<img style="width:16px;height:16px" src="images/save_icon&16.png" />
+				</a>
+				<a href="#" id="delete-button" class="button" data-bind="click: destroy, visible: !$parent.activeScene()" title="delete">
+					<img style="width:16px;height:16px" src="images/delete_icon&16.png" />
+				</a>
 			<!-- /ko -->
+    		
+            <!--ko with: activeScene -->
+            <span style="margin-left:32px">
+                <input data-bind="value: title" />
+            </span>
+    		<!-- /ko -->
+            
 			<div style="float: right">
-				<a href="#!/dashboard" class="button" data-bind="click: goToDashboard" title="dashboard">
+				<a href="#!/dashboard" class="button" title="dashboard">
 					<img style="width:24px;height:24px" src="images/dashboard_icon&24.png" />
 				</a>
 				<span class="app-title font-effect-shadow-multiple" style="font-family: 'Oleo Script Swash Caps', cursive">Stella</span>
 			</div>
-		</div>
+		</div><!-- end header -->
 		<!-- toolbar 2nd -->
 		<div id="myNicPanel" data-bind="visible: selectedProject"></div>
-	</div>
+	</div><!-- end toolbar -->
+</div><!-- end main-->
+    
+<!-- toolbar 2nd -->
+<div id="myNicPanel" style="position: absolute; top: 32px; left: 0; z-index:100" data-bind="visible: activeScene"></div>
 
 <div id="#dashboard-main" style="margin-top:30px" data-bind="
 	visible: !selectedProject(),
@@ -118,7 +134,8 @@
 			</div>
 		</div>
 	</div>
-</div>
+</div><!-- end dashboard-main -->
+
 <script type="text/javascript" src="./javascripts/main.js"></script>
 </body>
 </html>
