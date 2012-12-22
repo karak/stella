@@ -1,6 +1,8 @@
 body {
     margin: 0;
     padding: 0;
+    line-height: 150%;
+    font-family: Verdana,Arial,"メイリオ",Meiryo,"ヒラギノ角ゴPro W3","Hiragino Kaku Gothic Pro","ＭＳ Ｐゴシック",sans-serif;
 }
 
 h1 {
@@ -54,23 +56,35 @@ html, body {
     height: 100%;
 }
 
-#main {
-    margin: 0;
-    padding: 0px 0 0 0;
-    overflow: auto;
-    height: 100%;
-    max-height:100%;
-}
-
-body > #main {
-    height: auto;
-}
-
-/******************************/
 body {
     background-color: #FFFFFC;
 }
 
+#storyboard-main {
+    margin: 0;
+    padding: 0px 0 0 0;
+    overflow: visible;
+    height: 100%;
+    max-height:100%;
+}
+
+body > #storyboard-main {
+    height: auto;
+}
+
+#storyboard-menu {
+    position: static;
+    display: block;
+    font-weight: bold;
+    color: #FFFFFF;
+    background-color: #000000;
+}
+#storyboard-menu .banner {
+    float: right;
+    margin-right: 8px;
+}
+
+/******************************/
 #toolbar {
     position: fixed;
     left: 0;
@@ -129,48 +143,44 @@ body {
 /* generic cards */
 .index-card {
     display: inline-block;
+    border: 1px #888 solid;
+    border-radius: 6px;
+    color: #000000;
+    background-color: #FFFFFF;
     width: 320px;
     overflow: hidden;
     -webkit-column-break-inside: avoid;
 }
 
 /* scene */
-div.scene-container{
-    position: relative;
-    display: block;
-    border: 1px #888 solid;
-    border-radius: 6px;
-    color: #000000;
-    background-color: #FFFFFF;
-    margin-bottom: 2px;
-    overflow: visible;
+#scene-navi {
+    position:relative;
+    display:block;
+    padding: 0 0 4px 0;
 }
 
-div.scene-header {
+#scene-navi div.scene-container{
+    position: relative;
+    display: block;
+    padding-bottom: 4px;
+    margin-bottom: 2px;
+    border-bottom: dashed 1px #CCC;
+}
+
+#scene-navi div.scene-container.ghost {
+    border-style: dotted;
+}
+
+#scene-navi div.scene-header {
     position: relative;
     height: 24px;
     padding: 2px 4px 2px 4px;
 }
 
-div.scene-body {
-    padding: 2px;
-    overflow: hidden;
-}
-
-div.scene-title {
-    text-shadow: 1px 1px 0 #FFFFFF;
-}
-
-a.scene-edit-button {
+#scene-navi a.scene-select-button {
     position: absolute;
-    right: 22px;
-    top: 2px;
-}
-
-a.scene-select-button {
-    position: absolute;
-    right: 2px;
-    top: 2px;
+    left: 4px;
+    top: 4px;
     display: inline-block;
     width: 16px;
     height: 16px;
@@ -178,52 +188,84 @@ a.scene-select-button {
     background-color: white;
 }
 
-div.scene-content {
-    padding: 4px;
-    line-height: 120%;
-    max-height: 4em;
-    overflow: hidden;
-    white-space: pre-wrap;
+#scene-navi span.scene-title {
+    text-shadow: 1px 1px #AAA;
+    margin-left: 22px;
 }
 
-.drag-handle {
-    cursor: move;
+#scene-navi a.scene-edit-button {
+    position: absolute;
+    right: 4px;
+    top: 2px;
+}
+
+#scene-navi a.scene-select-button > img.unchecked-image {
+    display:inline;
+}
+#scene-navi a.scene-select-button > img.checked-image {
+    display:none;
+}
+#scene-navi a.scene-select-button.checked > img.unchecked-image {
+    display:none;
+}
+#scene-navi a.scene-select-button.checked > img.checked-image {
+    display:inline;
 }
 
 /*-- scene state */
-div.scene-container.selected {
-    border-color: #707080;
+#scene-navi div.scene-container.selected div.scene-header {
+    background-color: #F0F0E0;
 }
-div.scene-container.selected div.scene-title {
-    background-image: none;
-    background-color: #C0C0DA;
+
+#scene-navi div.scene-consequence,
+#scene-navi div.issue-group {
+    display: inline-block;
+    float: right;
+    min-width: 320px;
+    width: 320px;
+}
+#scene-navi div.issue-group ul {
+    margin: 0 8px 0 20px;
+    padding: 0;
+}
+
+#scene-navi .scene-remarks {
+    display: inline-block;
+    float: right;
+    margin-right: 20px;
+    padding: 4px;
+    min-width: 320px;
+    width: 160px;
+    min-width: 160px;
+    max-width: 160px;
+    overflow: visible;
+    white-space: pre-wrap;
+}
+#scene-navi .scene-events {
+    display: block;
+    clear: both;
 }
 
 /* scene editor */
 #scene-edit {
+    position: relative;
     display: block;
     margin-top: 32px;
     padding: 40px 8px 0 8px;
 }
 
-#scene-edit .scene-content-edit {
-    min-width: 360px;
+#scene-edit .scene-consequence-edit,
+#scene-edit .scene-remarks-edit {
+    display:block;
     min-height: 3em;
+}
+
+#scene-edit .issue-content-edit {
 }
 
 /* --issues */
 hr.scene-body-separator {
     margin-top: 12px;
-}
-
-ol.issue-area {
-    position: relative;
-    margin: 12px 0 12px 0px;
-    padding: 0 0 0 -8px;
-    min-height: 8px;
-    list-style: decimal outside;
-    color: #4F0030;
-    font-family: Verdana,Arial,"メイリオ",Meiryo,"ヒラギノ角ゴPro W3","Hiragino Kaku Gothic Pro","ＭＳ Ｐゴシック",sans-serif;
 }
 
 li.issue-container {
@@ -241,6 +283,12 @@ div.annotation-container {
     min-height: 20px;
 }
 
+/*****************************************************/
+/* dashboard */
+#dashboard-main {
+    padding: 0 8px 8px 8px;
+}
+
 /* gadget */
 .gadget {
     display: inline-block;
@@ -250,7 +298,7 @@ div.annotation-container {
     border-radius: 18px 2px 2px 2px;
 }
 .gadget>.gadget-header {
-    border: none 0px;
+    border: none 0;
     padding: 4px;
 }
 .gadget>.gadget-body {
@@ -261,5 +309,30 @@ div.annotation-container {
 /* gadet: project summary */
 .project-summary-project-name {
     font-size: 24px;
+}
+
+a[href] .project-summary-project-name {
+    text-decoration: underline;
+}
+
+/*****************************************************/
+/* notepad */
+.notepad-widget {
+    position: fixed;
+    bottom: 0;
+    margin: 0;
+    width: 100%;
+    overflow: hidden;
+    background-color: #420;
+    z-index: 1000;
+}
+
+.notepdad-widget-minimized {
+    max-height: 20px;
+    height:20px;
+    visibility: hidden;
+}
+.notepdad-widget-minimized:hover {
+    visibility: visible;
 }
 

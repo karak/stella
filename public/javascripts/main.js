@@ -1,15 +1,14 @@
 jQuery(function ($) {
+(function (ko, Sammy, nicEditor) {
 
-//knockout singleton
-//var ko = ko;
-
-//instanciate nicEditor
-var nicEdit;
+var nicEdit,
+    root;
 
 /** extend knockout */
 //contenteditable
 ko.bindingHandlers.htmlValue = {
     init: function(element, valueAccessor, allBindingsAccessor) {
+        jQuery(element).attr('contenteditable', 'true'); //TODO: rewrite -> not using jQuery
         ko.utils.registerEventHandler(element, "blur", function() {
             var modelValue = valueAccessor();
             var elementValue = element.innerHTML;
@@ -68,10 +67,11 @@ function SceneVM (data) {
     if ('_id' in data) self._id = data._id;
     
     self.title = ko.observable(data.title || '');
+    self.consequence = ko.observable('<ul><li></li></ul>'); //TODO: map array and simple <ul> element;
     
-    self.content = ko.observable(data.content || '<p></p>');
-    self.shortenContent = ko.computed(function () {
-        var full = $('<div>').html(self.content()).text();
+    self.remarks = ko.observable(data.remarks || '');
+    self.shortenRemarks = ko.computed(function () {
+        var full = $('<div>').html(self.remarks()).text();
         return full.length > 80? full.substring(0, 80 - 3) + '...'  : full;
     }, self);
 
@@ -86,17 +86,18 @@ function SceneVM (data) {
         data[ns] = data[ns] || [];
         var mine = {
 			title: self.title(),
-			content: self.content(), 
+            consequence: self.consequence(),
+			remarks: self.remarks(), 
 			issues: ko.utils.arrayMap(self.issues(), function (issue) { return {
 				content: issue.content(),
 				resolved: issue.resolved()
 			}})
 		};
         if ('_id' in self) {
-            mine['_id'] = self._id;
+            mine._id = self._id;
         }
         if ('_destroy' in self) {
-            mine['_destroy'] = self._destroy;
+            mine._destroy = self._destroy;
         }
         data[ns].push(mine);
     };
@@ -115,14 +116,39 @@ function ProjectVM(projectId) {
     self.projectId = projectId;
 
     self.scenes = ko.observableArray([]);
-    self.insertScene = function (before) {
+    self.insertSceneAfter = function (before) {
         var newScene = new SceneVM({});
         var index = self.scenes.indexOf(before);
         if (index !== -1) {
-            self.scenes.splice(index, 0, newScene);
+            self.scenes.splice(index + 1, 0, newScene);
         } else {
             self.scenes.push(newScene);
         }
+    };
+    self.moveSceneUp = function () {
+        ko.utils.arrayForEach(self.scenes(), function (target) {
+            if (target.selected) {
+                var index = self.scenes.indexOf(target),
+                    before;
+                if (index !== 0 && index !== -1) {
+                    before = self.scenes()[index - 1];
+                    self.scenes().splice(index - 1, 2, target, before);
+                    //ATTENTION: must unwrap scene not to notify.
+                }
+            }
+        });
+    };
+    self.moveSceneDown = function () {
+        ko.utils.arrayForEach(self.scenes(), function (target) {
+            if (target.selected) {
+                var index = self.scenes.indexOf(target),
+                    after;
+                if (index !== self.scenes().length - 1 && index !== -1) {
+                    after = self.scenes()[index + 1];
+                    self.scenes().splice(index, 2, after, target);
+                }
+            }
+        });
     };
     
     self.synchronizing = ko.observable(false);
@@ -156,7 +182,7 @@ function ProjectVM(projectId) {
 							} else {
 								scene._id = result._id;
 								scene.title(result.title);
-								scene.content(result.content);
+								scene.remarks(result.remarks);
 							}
 						}
 					} else {
@@ -193,6 +219,17 @@ function ProjectVM(projectId) {
     return this;
 }
 
+function NotepadWidgetVM() {
+    var self = this;
+    
+    self.minimized = ko.observable(true);
+    self.minimize = function () {
+        self.minimized(true);
+    };
+    self.unminimize = function () {
+        self.minimized(false);
+    };
+}
 
 nicEdit = new nicEditor({
     buttonList : [
@@ -207,20 +244,21 @@ nicEdit = new nicEditor({
 
 });
 
-var root = (new function () {
+root = (new function () {
 	var self = this;
 
-	self.projects = ko.observableArray([]);
 	self.selectedProject = ko.observable(null); //TODO: rename to active
     
-        self.activeScene = ko.observable(null);
-        self.activateScene = function (scene) {
-		if (root.selectedProject().scenes.indexOf(scene) === -1) return;
-		
-		self.activeScene(scene);
-		$('#scene-edit .scene-content-edit').focus();
-		     //NOTE: consider no _id yet if routing
-        };
+    self.activeScene = ko.observable(null);
+    self.activateScene = function (scene) {
+        if (root.selectedProject().scenes.indexOf(scene) === -1) return;
+    	
+    	self.activeScene(scene);
+    	$('#scene-edit .scene-remarks-edit').focus();
+    };
+    self.deactivateScene = function () {
+    	self.activeScene(null);
+    };
 
 	self.dashboard = (new function () {
 		var self = this;
@@ -250,26 +288,25 @@ var root = (new function () {
 	self.goToDashboard = function () {
 		self.dashboard.load(); //refresh!
 		self.selectedProject(null).
-		     activeScene(null);
+            activeScene(null);
 	};
 
 	self.goToProject = function (projectId) {
 		var theProject = new ProjectVM(projectId);
 		theProject.load();
 		self.selectedProject(theProject).
-		     activeScene(null);
+            activeScene(null);
 	};
+    
+    self.notepadWidget = new NotepadWidgetVM();
+    
 } ());
-
-var theProject = new ProjectVM(1);
-theProject.load(); //load initially
-root.projects ([theProject]);
 
 /* bind viewmodels with document */
 ko.applyBindings(root);
 
 /* create panel with save action of the project view-model */
-nicEdit.setPanel('myNicPanel');
+//nicEdit.setPanel('myNicPanel');
 
 /* create panel with save action of the project view-model 
    attention: create and move since you must call when it is visible*/
@@ -287,12 +324,13 @@ Sammy(function () {
     });
     
     this.get('#!/projects/:projectId', function () {
-        root.activeScene(null).
-             selectedProject(theProject);
+        root.goToProject(this.params.projectId);
     });
     
     this.get('#!/dashboard', function () {
         root.goToDashboard();
     });
 }).run();
+
+} (ko, Sammy, nicEditor));
 });
