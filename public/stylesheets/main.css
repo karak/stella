@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    line-height: 150%;
+    line-height: 160%;
     font-family: Verdana,Arial,"メイリオ",Meiryo,"ヒラギノ角ゴPro W3","Hiragino Kaku Gothic Pro","ＭＳ Ｐゴシック",sans-serif;
 }
 
@@ -15,42 +15,51 @@ a, a:hover, a:active, a:visited {
     text-decoration: inherit;
 }
 
-input.span-like {
--webkit-appearance: normal;
-display: inline;
-margin: 0;
-padding: 0;
-border: none 0 inherit;
-background-color: inherit;
-text-transform: inherit;
-text-indent: inherit;
-text-shadow: inherit;
+*[contenteditable] a[href] {
+    color: blue;
+    text-decoration: underline;
 }
 
 /* highlighit on focus */
-input, textarea, div[contenteditable] {
-    transition: all 0.10s ease-in-out;
+input, textarea, button, a[href], *[contenteditable] {
     -webkit-transition: all 0.10s ease-in-out;
     -moz-transition: all 0.10s ease-in-out;
-    border-radius:3px;
+    -o-transition: all 0.10s ease-in-out;
+    transition: all 0.10s ease-in-out;
     -webkit-border-radius:3px;
     -moz-border-radius:3px;
-    border:1px solid transparent;
+    border-radius:3px;
+    border: solid 1px transparent;
 }
+
 input, textarea {
-    border-style: solid rgba(0,0,0,0.2);
+    border-style: solid;
+    border-color: rgba(0,0,0,0.2);
+}
+
+*[contenteditable] {
+    border-style: none;
 }
 
 :focus {
     outline:none;
-    box-shadow: 0 0 8px rgba(31,64,255,0.8);
-    -webkit-box-shadow: 0 0 8px rgba(31,64,255,0.8); 
-    -moz-box-shadow: 0 0 8px rgba(31,64,255,0.8);
+    -webkit-box-shadow: 0 0 8px rgba(255,127,31,0.8); 
+    -moz-box-shadow: 0 0 8px rgba(255,127,31,0.8); 
+    box-shadow: 0 0 8px rgba(255,127,31,0.8); 
 }
 
-input:focus, textarea:focus, div[contenteditable]:focus {
-    border:1px solid rgba(31,64,255, 0.5); 
+input:focus, textarea:focus {
+    border:1px solid rgba(255,127,31,0.5); 
 }
+
+*[contenteditable]:focus:not(:empty) {
+    outline:none 0 transparent;;
+    border: none 0 transparent;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+/* end of highlight on focus*/
 
 html, body {
     height: 100%;
@@ -61,27 +70,9 @@ body {
 }
 
 #storyboard-main {
-    margin: 0;
-    padding: 0px 0 0 0;
+    margin: 60px 0 0 0;
+    padding: 0;
     overflow: visible;
-    height: 100%;
-    max-height:100%;
-}
-
-body > #storyboard-main {
-    height: auto;
-}
-
-#storyboard-menu {
-    position: static;
-    display: block;
-    font-weight: bold;
-    color: #FFFFFF;
-    background-color: #000000;
-}
-#storyboard-menu .banner {
-    float: right;
-    margin-right: 8px;
 }
 
 /******************************/
@@ -90,20 +81,30 @@ body > #storyboard-main {
     left: 0;
     top: 0;
     width: 100%;
+    color: #EEE;
+    background-color: #333;
+    z-index: 100;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
 }
+
+#storyboard-menu {
+    position: static;
+    display: block;
+    font-weight: bold;
+}
+
+#storyboard-menu .banner {
+    position: absolute;
+    top: auto;
+    right: 4px;
+}
     
 #header {
-    /*
-    */
-    height: 24px;
+    height: 28px;
     padding: 2px 8px 2px 8px;
-    color: #EEE;
-    background-color: #333;
-    z-index: 100;
 }
 
 #header a.button {
@@ -115,6 +116,9 @@ body > #storyboard-main {
 }
 #header a.button:hover img {
     opacity: 1.0;
+}
+#header a.button.button-disabled {
+    opacity: 0.25;
 }
 
 #header span.project-name-container {
@@ -157,6 +161,8 @@ body > #storyboard-main {
     position:relative;
     display:block;
     padding: 0 0 4px 0;
+    
+    counter-reset: scene-navi-scene;
 }
 
 #scene-navi div.scene-container{
@@ -175,22 +181,32 @@ body > #storyboard-main {
     position: relative;
     height: 24px;
     padding: 2px 4px 2px 4px;
+    margin-bottom: 0.25em;
+    vertical-align: text-top;
 }
 
-#scene-navi a.scene-select-button {
-    position: absolute;
-    left: 4px;
-    top: 4px;
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border-radius: 1px;
-    background-color: white;
+#scene-navi div.scene-header a.scene-select-button {
+    margin-right: 4px;
 }
 
-#scene-navi span.scene-title {
+#scene-navi div.scene-header img.scene-icon {
+    display: inline;
+}
+
+#scene-navi .scene-title-edit:before {
+    content: '#' counter(scene-navi-scene) '.';
+    display:inline-block;
+    width: 2.25em;
+    margin-right: 0.25em;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    color: #320;
+}
+
+#scene-navi .scene-title-edit {
+    counter-increment: scene-navi-scene;
     text-shadow: 1px 1px #AAA;
-    margin-left: 22px;
 }
 
 #scene-navi a.scene-edit-button {
@@ -212,38 +228,60 @@ body > #storyboard-main {
     display:inline;
 }
 
-/*-- scene state */
 #scene-navi div.scene-container.selected div.scene-header {
-    background-color: #F0F0E0;
+    background-color: rgba(255, 232, 216, 0.8);
 }
 
-#scene-navi div.scene-consequence,
-#scene-navi div.issue-group {
-    display: inline-block;
-    float: right;
-    min-width: 320px;
-    width: 320px;
+#scene-navi .scene-title-edit {
+    -webkit-user-modify: read-write-plaintext-only;
+    -moz-user-modify: read-write;
+    user-modify: read-write;
 }
-#scene-navi div.issue-group ul {
+
+#scene-navi .scene-row {
+    margin-left: 16px;
+    display: -webkit-box;
+    display: -moz-box;
+}
+
+#scene-navi .scene-events-edit {
+    list-style: url(/images/cog_icon&16.png);
+    min-width: 240px;
+    width: 320px;
+    margin: 0; /* cancel default to <ul>*/
+    min-height: 3em;
+    -webkit-user-modify: read-write;
+    -moz-user-modify: read-write;
+    user-modify: read-write;
+}
+
+#scene-navi .scene-consequence-edit {
+    list-style: url(/images/flag_2_icon&16.png);
+    margin: 0; /* cancel default to <ul>*/
+    margin-left: 12px;
+    min-width: 228px;
+    width: 308px;
+    min-height: 3em;
+    -webkit-user-modify: read-write;
+    -moz-user-modify: read-write;
+    user-modify: read-write;
+}
+
+#scene-navi div.issue-list {
+    list-style-image:url(/images/checkmark_icon&16.png);
+    min-width: 140px;
+    width: 180px;
+    margin-left: 20px;
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    -ms-box-flex:  1;
+}
+#scene-navi div.issue-list ul {
     margin: 0 8px 0 20px;
     padding: 0;
 }
 
-#scene-navi .scene-remarks {
-    display: inline-block;
-    float: right;
-    margin-right: 20px;
-    padding: 4px;
-    min-width: 320px;
-    width: 160px;
-    min-width: 160px;
-    max-width: 160px;
-    overflow: visible;
-    white-space: pre-wrap;
-}
-#scene-navi .scene-events {
-    display: block;
-    clear: both;
+#scene-navi div.issue-list >ul>li.issue-container {
 }
 
 /* scene editor */
@@ -254,33 +292,46 @@ body > #storyboard-main {
     padding: 40px 8px 0 8px;
 }
 
+#scene-edit .scene-title-edit {
+    font-size: 24px;
+    -webkit-user-modify: read-write-plaintext-only;
+    -moz-user-modify: read-write;
+    user-modify: read-write;
+}
+
+#scene-edit .scene-consequence-edit {
+    list-style: url(/images/flag_2_icon&16.png);
+}
+
+#scene-edit .scene-events-edit {
+    list-style: url(/images/cog_icon&16.png);
+}
+
 #scene-edit .scene-consequence-edit,
+#scene-edit .scene-events-edit,
 #scene-edit .scene-remarks-edit {
-    display:block;
+    display: block;
     min-height: 3em;
+    -webkit-user-modify: read-write;
+    -moz-user-modify: read-write;
+    user-modify: read-write;
 }
 
 #scene-edit .issue-content-edit {
+    min-height: 1em;
+    min-width: 10em;
+    -webkit-user-modify: read-write-plaintext-only;
+    -moz-user-modify: read-write;
+    user-modify: read-write;
+}
+#scene-edit .issue-content-edit:empty:before {
+    color: #AAA;
+    font-style: italic;
+    content: 'Type here';
 }
 
-/* --issues */
 hr.scene-body-separator {
     margin-top: 12px;
-}
-
-li.issue-container {
-}
-input.issue-content:empty {
-  content: 'input new issue'
-}
-
-/* annotation */
-div.annotation-container {
-    position: absolute;
-    color: red;
-    background-color: #FFC;
-    min-width: 20px;
-    min-height: 20px;
 }
 
 /*****************************************************/
@@ -315,6 +366,10 @@ a[href] .project-summary-project-name {
     text-decoration: underline;
 }
 
+.project-summary-issue-list {   
+    list-style-image:url(/images/checkmark_icon&16.png);
+}
+
 /*****************************************************/
 /* notepad */
 .notepad-widget {
@@ -324,7 +379,7 @@ a[href] .project-summary-project-name {
     width: 100%;
     overflow: hidden;
     background-color: #420;
-    z-index: 1000;
+    z-index: 100;
 }
 
 .notepdad-widget-minimized {

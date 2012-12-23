@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Stella</title>
     
     <!-- jQuery -->
@@ -27,21 +28,9 @@
 </head>
 <body>
 
-<div id="storyboard-main" class="page" style="padding-top: 40px;" data-bind="
+<div id="storyboard-main" class="page" data-bind="
     visible: selectedProject() && !activeScene(),
     with: selectedProject">
-    <div id="storyboard-menu">
-        <a class="scene-up-button" href"#" data-bind="click: moveSceneUp" title="up">
-            <img style="width:16px;height:16px" src="images/sq_up_icon&16.png" />
-        </a>
-        <a href"#" class="scene-down-button" data-bind="click: moveSceneDown" title="down">
-            <img style="width:16px;height:16px" src="images/sq_down_icon&16.png" />
-        </a>
-		<a href="#" class="scene-delete-button" data-bind="click: destroy" title="delete">
-			<img style="width:16px;height:16px" src="images/delete_icon&16.png" />
-		</a>
-        <span class="banner">Storyboard</span>
-    </div>
     <div style="position:relative;">
 		<div id="scene-navi" data-bind="foreach: scenes">
 			<div class="scene-container" data-bind="css: {selected: selected}">
@@ -50,27 +39,26 @@
 						<img class="unchecked-image" style="width:16px;height:16px" src="images/checkbox_unchecked_icon&16.png" />
 						<img class="checked-image" style="width:16px;height:16px" src="images/checkbox_checked_icon&16.png" />
 					</a>
-                    <span class="scene-title" data-bind="text: title"></span>
-                    <a href="#" class="scene-edit-button" data-bind="click: $root.activateScene">
+                    
+                    <img class="scene-icon" style="width:16px;height:16px" src="images/cube_icon&16.png" />
+                    <span class="scene-title-edit" contenteditable="true" data-bind="plaintext-value: title"></span>
+                    <a href="#" class="scene-edit-button" data-bind="click: $root.activateScene" title="activate">
 						<img style="width:16px;height:16px" src="images/pencil_icon&16.png"/>
                     </a>
 				</div>
-                <div>
-                    <div class="issue-group">
+                <div class="scene-row">
+                    <ul class="scene-events-edit" contenteditable="true" data-bind="list-value: events"></ul>
+                    <ul class="scene-consequence-edit" contenteditable="true" data-bind="list-value: consequence"></ul>
+                    <div class="issue-list">
                         <ul data-bind="foreach: issues">
                             <li class="issue-container" data-bind="text:content, visible: !resolved()" />
                         </ul>
                         <br data-bind="visible: issues().length === 0" />
                     </div>
-    				<div class="scene-remarks" data-bind="text:shortenRemarks"></div>
-                    <div class="scene-consequence" data-bind="html: consequence"></div>
-                    <div class="scene-events" data-bind></div>
-                    
-                    <div style="clear: both"></div>
                 </div>
                 <a href="#" class="insert-scene-button" data-bind="click: $parent.insertSceneAfter"
-                    style="position:absolute; right: 28px; bottom: -10px; z-index:101;">
-                    <img style="width:16px;height:16px" src="images/doc_plus_icon&16.png" />
+                    style="position:absolute; right: 36px; bottom: -16px; z-index:10;">
+                    <img style="width:16px;height:16px" src="images/sq_plus_icon&16.png" />
                 </a>
             </div>
 		</div>
@@ -80,25 +68,32 @@
 <!--TODO: inline edit with ONE focus-->
 <div id="scene-edit" data-bind="with: activeScene">
     <div>
-        <a href="#" data-bind="click: $parent.deactivateScene" title="finish">X</a>
-    </div>
-    <div>
-		<img style="width:24px;height:24px" src="./images/document_icon&24.png" />
-        <input data-bind="value: title" />
+		<img style="width:24px;height:24px" src="./images/cube_icon&24.png" />
+        <span contenteditable="true" class="scene-title-edit" data-bind="plaintext-value: title"></span>
     </div>
     
-    <div class="scene-consequence-edit" contenteditable="true" data-bind="htmlValue: consequence"></div>
+    <ul class="scene-events-edit" contenteditable="true" data-bind="list-value: events"></ul>
+    <ul class="scene-consequence-edit" contenteditable="true" data-bind="list-value: consequence"></ul>
     <hr class="scene-body-separator" />
-	<div class="scene-remarks-edit" contenteditable="true" data-bind="htmlValue:remarks"></div>
+	<div class="scene-remarks-edit" contenteditable="true" data-bind="html-value:remarks"></div>
 	<hr class="scene-body-separator" />
-	<ol class="issue-area">
+	<ul class="issues-edit">
 		<!-- ko foreach: issues -->
 		<li class="issue-container">
-			<input class="span-like issue-content-edit" data-bind="value:content, enable: !resolved()" />
+            <a href="#" class="button" data-bind="click:$parent.removeIssue" title="Remove issue">
+                <img style="width:16px;height:16px" src="./images/round_minus_icon&16.png" />
+            </a>
+            <input class="issue-resolved-checkbox" type="checkbox" data-bind="checked: resolved" />
+			<span contenteditable="true" class="issue-content-edit" data-bind="plaintext-value:content, enable: !resolved()"></span>
 		</li>
 		<!-- /ko -->
-		<a href="#" class="button" style="position:absolute; top:0; right: 4px" data-bind="click:addIssue">new issue</a>
-	</ol>
+    	<li class="issue-containe issue-container-ghost">
+            <a href="#" data-bind="click: addIssue" title="Add issue">
+                <img style="width:16px;height:16px" src="./images/round_plus_icon&16.png" />
+            </a>
+            <input class="issue-resolved-checkbox" type="checkbox" disabled="disabled" />
+        </li>
+	</ul>
 </div>
 
 <div id="toolbar">
@@ -119,14 +114,37 @@
 			</a>
 			<span class="app-title font-effect-shadow-multiple" style="font-family: 'Oleo Script Swash Caps', cursive">Stella</span>
 		</div>
-	</div><!-- end header -->
+    
+        <span style="float:right;position:relative;top: 2px;" data-bind="visible: activeScene">
+            <a href="#" class="button" data-bind="click: activatePrevScene, css: {'button-disabled': !prevOfActiveScene()}" title="prev">
+            	<img style="width:16px;height:16px" src="images/round_arrow_left_icon&16.png" />
+            </a>
+            <a href="#" class="button" data-bind="click: deactivateScene" title="index">
+    			<img style="width:16px;height:16px" src="images/round_and_up_icon&16.png" />
+            </a>
+            <a href="#"  class="button" data-bind="click: activateNextScene, css: {'button-disabled': !nextOfActiveScene()}" title="next">
+            	<img style="width:16px;height:16px" src="images/round_arrow_right_icon&16.png" />
+            </a>
+        </span>
+
+</div><!-- end header -->
 	<!-- toolbar 2nd -->
-	<!--<div id="myNicPanel" data-bind="visible: selectedProject"></div>-->
+    <div id="storyboard-menu" data-bind="visible: selectedProject() && !activeScene(), with: selectedProject">
+        <a href="#" class="scene-up-button" data-bind="click: moveSceneUp" title="up" style="margin-left: 4px">
+            <img style="width:16px;height:16px" src="images/sq_up_icon&16.png" />
+        </a>
+        <a href="#" class="scene-down-button" data-bind="click: moveSceneDown" title="down">
+            <img style="width:16px;height:16px" src="images/sq_down_icon&16.png" />
+        </a>
+    	<a href="#" class="scene-delete-button" data-bind="click: destroy" title="delete" style="margin-left: 8px">
+			<img style="width:16px;height:16px" src="images/delete_icon&16.png" />
+		</a>
+        <span class="banner">Storyboard</span>
+    </div>
+	<div id="myNicPanel" data-bind="visible: activeScene">
+	</div>
 </div><!-- end toolbar -->
     
-<!-- toolbar 2nd -->
-<div id="myNicPanel" style="position: fixed; top: 32px; left: 0; z-index:100" data-bind="visible: activeScene"></div>
-
 <div id="dashboard-main" class="page" data-bind="
 	visible: !selectedProject(),
 	with: dashboard
@@ -146,7 +164,7 @@
 					</a>
 					</div>
 					<div style="display:inline-block" title="number of scenes">
-						<img style="width:16px;height:16px" src="./images/document_icon&16.png" /><span style="font-size:0.7em">&times;</span><span data-bind="text:sceneCount"></span>
+						<img style="width:16px;height:16px" src="./images/cube_icon&16.png" /><span style="font-size:0.7em">&times;</span><span data-bind="text:sceneCount"></span>
 					</div>
 					<ol class="project-summary-issue-list" data-bind="foreach: issues">
 						<li><span data-bind="text: content"></span></li>

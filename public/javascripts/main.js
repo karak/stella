@@ -5,10 +5,9 @@ var nicEdit,
     root;
 
 /** extend knockout */
-//contenteditable
-ko.bindingHandlers.htmlValue = {
+//contenteditable/user-modify: read-write
+ko.bindingHandlers['html-value'] = {
     init: function(element, valueAccessor, allBindingsAccessor) {
-        jQuery(element).attr('contenteditable', 'true'); //TODO: rewrite -> not using jQuery
         ko.utils.registerEventHandler(element, "blur", function() {
             var modelValue = valueAccessor();
             var elementValue = element.innerHTML;
@@ -16,7 +15,9 @@ ko.bindingHandlers.htmlValue = {
                 modelValue(elementValue);
             } else { //handle non-observable one-way binding
                 var allBindings = allBindingsAccessor();
-                if (allBindings['_ko_property_writers'] && allBindings['_ko_property_writers'].htmlValue) allBindings['_ko_property_writers'].htmlValue(elementValue);
+                if (allBindings['_ko_property_writers'] && allBindings['_ko_property_writers'].htmlValue) {
+                    allBindings['_ko_property_writers'].htmlValue(elementValue);
+                }
             }
         });
         
@@ -29,8 +30,32 @@ ko.bindingHandlers.htmlValue = {
     }
 };
 
+//contenteditable/user-modify: read-write(better is -webkit-user-modify: read-write-plaintext-only)
+ko.bindingHandlers['plaintext-value'] = {
+    init: function(element, valueAccessor, allBindingsAccessor) {
+        ko.utils.registerEventHandler(element, "blur", function() {
+            var modelValue = valueAccessor();
+            var elementValue = $(element).text();
+            if (ko.isWriteableObservable(modelValue)) {
+                modelValue(elementValue);
+            } else { //handle non-observable one-way binding
+                var allBindings = allBindingsAccessor();
+                var elementValueAsHtml = $('<span>').text(elementValue).html();
+                if (allBindings['_ko_property_writers'] && allBindings['_ko_property_writers'].htmlValue) {
+                    allBindings['_ko_property_writers'].htmlValue(elementValueAsHtml);
+                }
+            }
+        });
+    },
+    update: function(element, valueAccessor) {
+        var value = ko.utils.unwrapObservable(valueAccessor()) || "";
+        var valueAsHtml = $('<span>').text(value).html();
+        element.innerHTML = valueAsHtml;
+    }
+};
+
 //draggable
-ko.bindingHandlers.positionOffset = {
+ko.bindingHandlers['position-offset'] = {
     init: function (element, valueAccessor) {
         var position = ko.utils.unwrapObservable(valueAccessor());
         jQuery(element).draggable({
@@ -51,7 +76,73 @@ ko.bindingHandlers.positionOffset = {
         }
         jQuery(element).css({left: position.left, top: position.top});
     }
-}
+};
+
+//contenteditable with list -- ul/ol
+(function() {
+    function arrayToHtml(textArray) {
+        var items = jQuery.map(textArray, function (text) {
+            return (text !== ''? '<li>' + jQuery('<span>').text(text).html() + '</li>' : '');
+        });
+        return items.join('');
+    }
+    
+    function arrayToHtmlValue(textArray) {
+        var listItems = arrayToHtml(textArray);
+        if (listItems === '') {
+            listItems = '<li></li>'; //for list editing
+        }
+        return listItems;
+    }
+    
+    /** create ul/ol with binding. */
+    ko.bindingHandlers['list-text'] =  {
+        init: function (element, valueAccessor, allBindingsAccessor) {
+        },
+        update: function updateFn(element, valueAccessor) {       
+            var cannonicalValue = ko.utils.unwrapObservable(valueAccessor());
+            jQuery(element).html(arrayToHtml(cannonicalValue));
+        }
+    };
+    
+    /** create contenteditable ul/ol.
+    prefer element is design-mode :
+        HTML:
+            <ul class="editable-list" contenteditable></ul>
+        
+        CSS:
+            .editable-list {
+                -webkit-user-modify: read-write;
+                -moz-user-modify: read-write;
+                user-modify: read-write;
+            }
+    
+    */ 
+    ko.bindingHandlers['list-value'] =  {
+        init: function (element, valueAccessor, allBindingsAccessor) {
+            ko.utils.registerEventHandler(element, 'blur', function() {
+                var modelValue = valueAccessor();
+                var cannonicalValue = jQuery('>li', element).map(function() {
+                    return jQuery(this).text();
+                }).get();
+                var cannonicalValueHtml = arrayToHtmlValue(cannonicalValue);
+                
+                if (ko.isWriteableObservable(modelValue)) {
+                    modelValue(cannonicalValue);
+                } else {
+                    var allBindings = allBindingsAccessor();
+                    if (allBindings['_ko_property_writers'] && allBindings['_ko_property_writers'].htmlValue) {
+                        allBindings['_ko_property_writers'].htmlValue(cannonicalValueHtml );
+                    }
+                }
+            });
+        },
+        update: function updateFn(element, valueAccessor) {       
+            var cannonicalValue = ko.utils.unwrapObservable(valueAccessor());
+            jQuery(element).html(arrayToHtmlValue(cannonicalValue));
+        }
+    };
+}());
 
 /** viewmodels */
 function IssueVM(data) {
@@ -67,7 +158,8 @@ function SceneVM (data) {
     if ('_id' in data) self._id = data._id;
     
     self.title = ko.observable(data.title || '');
-    self.consequence = ko.observable('<ul><li></li></ul>'); //TODO: map array and simple <ul> element;
+    self.events = ko.observable(data.events || []);
+    self.consequence = ko.observable(data.consequence || []);
     
     self.remarks = ko.observable(data.remarks || '');
     self.shortenRemarks = ko.computed(function () {
@@ -77,8 +169,11 @@ function SceneVM (data) {
 
 	//issues
 	self.issues = ko.observableArray(ko.utils.arrayMap(data.issues, function (data) { return new IssueVM(data); }));
-	self.addIssue = function () {
+    self.addIssue = function () {
         self.issues.push(new IssueVM({}));
+    };
+    self.removeIssue = function (item) {
+        self.issues.remove(item);
     };
 
     self.saveForm = function (data) {
@@ -86,6 +181,7 @@ function SceneVM (data) {
         data[ns] = data[ns] || [];
         var mine = {
 			title: self.title(),
+            events: self.events(),
             consequence: self.consequence(),
 			remarks: self.remarks(), 
 			issues: ko.utils.arrayMap(self.issues(), function (issue) { return {
@@ -110,6 +206,22 @@ function SceneVM (data) {
 	return this;
 }
 
+function forEach (array, fn) {
+    var i, n = array.length, item;
+    for (i = 0; i < n; ++i) {
+        item = array[i];
+        if (fn.call(item, i, item) === false) break;
+    }
+}
+
+function reverseForEach (array, fn) {
+    var i, n = array.length, item;
+    for (i = n - 1; i >= 0; --i) {
+        item = array[i];
+        if (fn.call(item, i, item) === false) break;
+    }
+}
+
 function ProjectVM(projectId) {
     var self = this;
 
@@ -126,29 +238,33 @@ function ProjectVM(projectId) {
         }
     };
     self.moveSceneUp = function () {
-        ko.utils.arrayForEach(self.scenes(), function (target) {
-            if (target.selected) {
-                var index = self.scenes.indexOf(target),
-                    before;
-                if (index !== 0 && index !== -1) {
+        self.scenes.valueWillMutate();
+        forEach(self.scenes(), function (index, target) {
+            var before;
+            if (target.selected()) {
+                if (index !== 0) {
                     before = self.scenes()[index - 1];
                     self.scenes().splice(index - 1, 2, target, before);
-                    //ATTENTION: must unwrap scene not to notify.
+                    //ATTENTION: must unwrap scene not to notify 'delete'.
                 }
             }
         });
+        self.scenes.valueHasMutated();
     };
     self.moveSceneDown = function () {
-        ko.utils.arrayForEach(self.scenes(), function (target) {
-            if (target.selected) {
-                var index = self.scenes.indexOf(target),
-                    after;
-                if (index !== self.scenes().length - 1 && index !== -1) {
-                    after = self.scenes()[index + 1];
-                    self.scenes().splice(index, 2, after, target);
+        var scenes = self.scenes();
+        var lastIndex = scenes.length - 1;
+        self.scenes.valueWillMutate();
+        reverseForEach(scenes, function (index, target) {
+            var after;
+            if (target.selected()) {
+                if (index !== lastIndex) {
+                    after = scenes[index + 1];
+                    scenes.splice(index, 2, after, target);
                 }
             }
         });
+        self.scenes.valueHasMutated();
     };
     
     self.synchronizing = ko.observable(false);
@@ -157,7 +273,6 @@ function ProjectVM(projectId) {
 		if (self.synchronizing()) return;
 
 		self.synchronizing(true);
-		console.log(self.scenes());
         var data = {};
         ko.utils.arrayForEach(self.scenes(), function (item) { item.saveForm(data); });
 		console.log('post:', data);
@@ -250,11 +365,48 @@ root = (new function () {
 	self.selectedProject = ko.observable(null); //TODO: rename to active
     
     self.activeScene = ko.observable(null);
+    self.prevOfActiveScene = ko.computed(function () {
+        var current = self.activeScene();
+        if (current === null) return null;
+        
+        var scenes =  self.selectedProject().scenes(),
+            currentIndex = scenes.indexOf(current);
+        if (currentIndex === 0 || currentIndex === -1) {
+            return null;
+        } else {
+            return scenes[currentIndex - 1];
+        }
+    }, self);
+    self.nextOfActiveScene = ko.computed(function () {
+        var current = self.activeScene();
+        if (current === null) return null;
+        
+        var scenes =  self.selectedProject().scenes(),
+            currentIndex = scenes.indexOf(current);
+        if (currentIndex === scenes.length - 1 || currentIndex === -1) {
+            return null;
+        } else {
+            return scenes[currentIndex + 1];
+        }
+    }, self);
+    
     self.activateScene = function (scene) {
-        if (root.selectedProject().scenes.indexOf(scene) === -1) return;
-    	
-    	self.activeScene(scene);
-    	$('#scene-edit .scene-remarks-edit').focus();
+        if (self.selectedProject().scenes.indexOf(scene) === -1) return;
+        
+        self.activeScene(scene);
+        $('#scene-edit .scene-remarks-edit').focus();
+    };
+    self.activatePrevScene = function () {
+        var scene = self.prevOfActiveScene();
+        if (scene !== null) {
+            self.activateScene(scene);
+        }
+    };
+    self.activateNextScene = function () {
+        var scene = self.nextOfActiveScene();
+        if (scene !== null) {
+            self.activateScene(scene);
+        }
     };
     self.deactivateScene = function () {
     	self.activeScene(null);
@@ -306,15 +458,7 @@ root = (new function () {
 ko.applyBindings(root);
 
 /* create panel with save action of the project view-model */
-//nicEdit.setPanel('myNicPanel');
-
-/* create panel with save action of the project view-model 
-   attention: create and move since you must call when it is visible*/
-(function () {
-    var e = document.getElementById('myNicPanel');
-    nicEdit.setPanel(e);
-    //document.getElementById('sceneEdit').appendChild(e);
-} ());
+nicEdit.setPanel('myNicPanel');
 
 /* init & run routing */
 Sammy(function () {
