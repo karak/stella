@@ -426,6 +426,7 @@ root = (new function () {
 
 	self.dashboard = (new function () {
 		var self = this;
+		
 		self.projectSummary = (new function () {
 			var self = this;
 			self.items = ko.observableArray([]);
@@ -437,6 +438,7 @@ root = (new function () {
 				//TODO: return promise
 				$.getJSON('/projects/summary.json', function (response) {
 					self.items(ko.utils.arrayMap(response, function (data) {
+						data.storyboardUrl = urls.storyboard(data._id);;
 						return data;
 					}));
 					self.loading(false);

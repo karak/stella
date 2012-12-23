@@ -124,23 +124,40 @@ app.get('/projects/:projectId/scenes.json', function (req, res) {
     });
 });
 
+function arraySum (array) {
+	var sum = 0;
+	array.forEach(function (item) { sum += item; });
+	return sum;
+}
+
 app.get('/projects/summary.json', function (req, res) {
+	//TODO: better query when using aggregation function?
+	
     MongoClient.connect(mongoUri, function(err, db) {
         if(err) { return console.dir(err); }
     
         db.collection('scenes', function(err, collection) {
             if(err) { return console.dir(err); }
-            collection.find({}, {issues: 1 /*{'$if' : {resolved: false}}*/}).sort({_ord: 1}).toArray(function (err, result) {
+            collection.find({}, {'issues.resolved': 1}).sort({_ord: 1}).toArray(function (err, result) {
                 if(err) { return console.dir(err); }
-		var sceneCount = result.length;
-		var allIssues = [];
-		result.forEach(function (data) {
-			allIssues = allIssues.concat(data.issues);
-		});
-		
-                res.json([{
-			_id: 1, sceneCount: sceneCount, issues: allIssues
-		}]);
+				var sceneCount = result.length;
+				
+				var totalIssueCount = arraySum(result.map(function (scene) {
+					return scene.issues.length;
+				}));
+				
+				var remainedIssueCount = arraySum(result.map(function (scene) {
+					return scene.issues.
+						filter(function (issue) { return !issue.resolved; }).
+						length;
+				}));
+				
+				res.json([{
+					_id: 1,
+					sceneCount: sceneCount,
+					totalIssueCount: totalIssueCount,
+					remainedIssueCount: remainedIssueCount
+				}]);
             });
         });
     });

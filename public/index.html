@@ -181,17 +181,22 @@
 			<div class="gadget" style="float:both">
 				<div>
 					<div class="gadget-header">
-					<a href="#!/projects/1/storyboard">
-						<img style="width:24px;height:24px" src="./images/book_side_icon&24.png" />
-						<span class="project-summary-project-name">Project name</span>
-					</a>
+						<a data-bind="attr: {href: storyboardUrl}">
+							<img style="width:24px;height:24px" src="./images/book_side_icon&24.png" />
+							<span class="project-summary-project-name">Project name</span>
+						</a>
 					</div>
-					<div style="display:inline-block" title="number of scenes">
-						<img style="width:16px;height:16px" src="./images/cube_icon&16.png" /><span style="font-size:0.7em">&times;</span><span data-bind="text:sceneCount"></span>
+					<div title="number of scenes">
+						<img style="width:16px;height:16px" src="./images/cube_icon&16.png" />
+						<span style="font-size:0.7em">&times;</span>
+						<span data-bind="text:sceneCount"></span>
 					</div>
-					<ol class="project-summary-issue-list" data-bind="foreach: issues">
-						<li><span data-bind="text: content"></span></li>
-					</ol>
+					<div title="number of remained/total issues">
+						<img style="width:16px;height:16px" src="./images/checkmark_icon&16.png" />
+						<span style="font-size:0.7em">&times;</span>
+						<span data-bind="text: remainedIssueCount"></span>
+						/<span data-bind="text: totalIssueCount"></span>
+					</div>
 				</div>
 			</div>
 		</div>

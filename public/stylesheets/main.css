@@ -434,10 +434,6 @@ a[href] .project-summary-project-name {
     text-decoration: underline;
 }
 
-.project-summary-issue-list {   
-    list-style-image:url(/images/checkmark_icon&16.png);
-}
-
 /*****************************************************/
 /* notepad */
 .notepad-widget {
