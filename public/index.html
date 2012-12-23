@@ -28,8 +28,29 @@
 </head>
 <body>
 
+<div id="project-home-main" class="page" data-bind="visible: home() && selectedProject(), with: selectedProject">
+    <a data-bind="attr: {href: storyboardUrl}">&gt;&gt;Storyboard</a>/<a></a>
+    <h3>
+        <img style="width:24px;height:24px;margin-right:6px;" src="/images/cube_icon&24.png" />
+        Scene outline
+    </h3>
+    <div class="project-scene-list" data-bind="foreach: scenes">
+        <div class="project-scene-list-item" data-bind="text:title"></div>
+    </div>
+    
+    <h3>
+        <img style="width:24px;height:24px;margin-right:6px;" src="/images/checkmark_icon&24.png" />
+        Remained issues
+    </h3>
+    <div class="project-issue-list" data-bind="foreach: scenes">
+        <!-- ko foreach: issues -->
+            <div class="project-issue-list-item" data-bind="text:content, visible: !resolved()"></div>
+        <!-- /ko -->
+    </div>
+</div><!-- end of project-home-main -->
+
 <div id="storyboard-main" class="page" data-bind="
-    visible: selectedProject() && !activeScene(),
+    visible: storyboard() && selectedProject() && !activeScene(),
     with: selectedProject">
     <div style="position:relative;">
 		<div id="scene-navi" data-bind="foreach: scenes">
@@ -99,8 +120,11 @@
 <div id="toolbar">
 	<div id="header">
 		<!--ko with: selectedProject -->
-			<a href="#" id="project-refresh-button" class="button" data-bind="click: load" title="refresh the project">
+    		<a href="#" id="project-refresh-button" class="button" data-bind="click: load" title="refresh the project">
 				<img style="width:16px;height:16px" src="images/refresh_icon&16.png" />
+			</a>
+    		<a href="#!/projects/1" id="project-home-button" class="button" title="go to project home">
+				<img style="width:16px;height:16px" src="images/book_side_icon&16.png" />
 			</a>
 			<span class="project-name-container">Project name</span>
 			<a href="#" id="project-save-button" class="button" data-bind="click: save" title="save the project">
@@ -126,17 +150,16 @@
             	<img style="width:16px;height:16px" src="images/round_arrow_right_icon&16.png" />
             </a>
         </span>
-
-</div><!-- end header -->
+    </div><!-- end header -->
 	<!-- toolbar 2nd -->
-    <div id="storyboard-menu" data-bind="visible: selectedProject() && !activeScene(), with: selectedProject">
-        <a href="#" class="scene-up-button" data-bind="click: moveSceneUp" title="up" style="margin-left: 4px">
+    <div id="storyboard-menu" data-bind="visible: storyboard() && selectedProject() && !activeScene(), with: selectedProject">
+        <a href="#" class="button scene-up-button" data-bind="click: moveSceneUp" title="up" style="margin-left: 4px">
             <img style="width:16px;height:16px" src="images/sq_up_icon&16.png" />
         </a>
-        <a href="#" class="scene-down-button" data-bind="click: moveSceneDown" title="down">
+        <a href="#" class="button scene-down-button" data-bind="click: moveSceneDown" title="down">
             <img style="width:16px;height:16px" src="images/sq_down_icon&16.png" />
         </a>
-    	<a href="#" class="scene-delete-button" data-bind="click: destroy" title="delete" style="margin-left: 8px">
+    	<a href="#" class="button scene-delete-button" data-bind="click: destroy" title="delete" style="margin-left: 8px">
 			<img style="width:16px;height:16px" src="images/delete_icon&16.png" />
 		</a>
         <span class="banner">Storyboard</span>
@@ -158,7 +181,7 @@
 			<div class="gadget" style="float:both">
 				<div>
 					<div class="gadget-header">
-					<a href="#!/projects/1">
+					<a href="#!/projects/1/storyboard">
 						<img style="width:24px;height:24px" src="./images/book_side_icon&24.png" />
 						<span class="project-summary-project-name">Project name</span>
 					</a>

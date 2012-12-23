@@ -144,6 +144,13 @@ ko.bindingHandlers['position-offset'] = {
     };
 }());
 
+/** url helper */
+var urls = {
+    storyboard: function (projectId) {
+        return '#!/projects/' + projectId + '/storyboard';
+    }
+}
+
 /** viewmodels */
 function IssueVM(data) {
     var self = this;
@@ -225,7 +232,7 @@ function reverseForEach (array, fn) {
 function ProjectVM(projectId) {
     var self = this;
 
-    self.projectId = projectId;
+    self._id = projectId;
 
     self.scenes = ko.observableArray([]);
     self.insertSceneAfter = function (before) {
@@ -277,7 +284,7 @@ function ProjectVM(projectId) {
         ko.utils.arrayForEach(self.scenes(), function (item) { item.saveForm(data); });
 		console.log('post:', data);
         $.ajax({
-            url: '/projects/1',
+            url: '/projects/' + self._id,
             type: 'post',
             contentType: 'application/json',
             data: JSON.stringify(data),
@@ -302,7 +309,7 @@ function ProjectVM(projectId) {
 						}
 					} else {
 					}
-				};
+				}
 				$.each(toRemove, function (){ self.scenes.remove(this); });
 				self.scenes.valueHasMutated();
 			}
@@ -314,7 +321,7 @@ function ProjectVM(projectId) {
 		if (self.synchronizing()) return;
 
 		self.synchronizing(true);
-        $.getJSON('projects/'+projectId+'/scenes.json', function (response) {
+        $.getJSON('projects/' + self._id +'/scenes.json', function (response) {
 			self.scenes($.map(response, function (data) { return new SceneVM(data); }));
 			self.synchronizing(false);
 			//TODO: failure case
@@ -330,6 +337,11 @@ function ProjectVM(projectId) {
             }
         });
     };
+    
+    /* url helpers */
+    self.storyboardUrl = ko.computed(function () {
+        return urls.storyboard(self._id);
+    });
     
     return this;
 }
@@ -436,19 +448,38 @@ root = (new function () {
 			self.projectSummary.load();
 		};
 	} ());
+    
+    self.storyboard =ko.observable(false); //TODO: make object and let it have functions moved out of self.
+    self.home = ko.computed(function () {
+        return !self.storyboard();
+    }, self);
 
 	self.goToDashboard = function () {
 		self.dashboard.load(); //refresh!
 		self.selectedProject(null).
             activeScene(null);
 	};
-
-	self.goToProject = function (projectId) {
-		var theProject = new ProjectVM(projectId);
-		theProject.load();
-		self.selectedProject(theProject).
-            activeScene(null);
+    
+    var selectProjectById = function (projectId) {
+        var current = self.selectedProject();
+        if (current === null || current._id !== projectId) {
+            var newProject = new ProjectVM(projectId);
+            newProject.load();
+            self.selectedProject(newProject);
+        }
+    };
+    
+	self.goToProjectStoryboard = function (projectId) {
+        selectProjectById(projectId);
+        self.storyboard(true);
+        self.activeScene(null);
 	};
+    
+    self.goToProjectHome = function (projectId) {
+        selectProjectById(projectId);
+        self.activeScene(null);
+        self.storyboard(false);
+    };
     
     self.notepadWidget = new NotepadWidgetVM();
     
@@ -467,8 +498,12 @@ Sammy(function () {
         this.redirect('#!/projects/1');
     });
     
+    this.get(urls.storyboard(':projectId'), function () {
+        root.goToProjectStoryboard(this.params.projectId);
+    });
+    
     this.get('#!/projects/:projectId', function () {
-        root.goToProject(this.params.projectId);
+        root.goToProjectHome(this.params.projectId);
     });
     
     this.get('#!/dashboard', function () {
