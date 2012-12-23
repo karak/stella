@@ -20,7 +20,7 @@
     <!-- <script type="text/javascript" src="./javascripts/knockout-2.2.0.debug.js"></script>-->
     
     <!-- special web fonts -->
-    <link href='http://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps:bold&effect=shadow-multiple&text=Stella' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Oleo+Script+Swash+Caps&effect=shadow-multiple&text=Stella' rel='stylesheet' type='text/css'>
     
     <link rel="stylesheet" href="./stylesheets/main.css">
     
@@ -56,15 +56,17 @@
 		<div id="scene-navi" data-bind="foreach: scenes">
 			<div class="scene-container" data-bind="css: {selected: selected}">
 				<div class="scene-header">
-    				<a href="#" class="checkbox scene-select-button" data-bind="click: toggleSelected, css: {checked: selected}" title="select/deselect">
-						<img class="unchecked-image" style="width:16px;height:16px" src="images/black/checkbox_unchecked_icon&16.png" />
-						<img class="checked-image" style="width:16px;height:16px" src="images/black/checkbox_checked_icon&16.png" />
+    				<a href="#" class="checkbox scene-select-button" data-bind="click: toggleSelected, css: {checked: selected}" title="select/deselect"
+    					style="position:absolute; left: 4px;"
+    					>
+						<img class="unchecked-image" style="width:24px;height:24px" src="images/black/checkbox_unchecked_icon&24.png" />
+						<img class="checked-image" style="width:24px;height:24px" src="images/black/checkbox_checked_icon&24.png" />
 					</a>
                     
                     <img class="scene-icon" style="width:16px;height:16px" src="images/black/cube_icon&16.png" />
                     <span class="scene-title-edit" contenteditable="true" data-bind="plaintext-value: title"></span>
-                    <a href="#" class="scene-edit-button" data-bind="click: $root.activateScene" title="activate">
-						<img style="width:16px;height:16px" src="images/black/pencil_icon&16.png"/>
+                    <a href="#" class="button scene-edit-button" data-bind="click: $root.activateScene" title="activate">
+						<img style="width:24px;height:24px" src="images/black/expand_icon&24.png"/>
                     </a>
 				</div>
                 <div class="scene-row">
@@ -77,8 +79,9 @@
                         <br data-bind="visible: issues().length === 0" />
                     </div>
                 </div>
-                <a href="#" class="insert-scene-button" data-bind="click: $parent.insertSceneAfter"
-                    style="position:absolute; right: 36px; bottom: -16px; z-index:10;">
+            </div>
+            <div class="scene-separator">
+                <a href="#" class="button scene-insert-button" data-bind="click: $parent.insertSceneAfter">
                     <img style="width:16px;height:16px" src="images/black/sq_plus_icon&16.png" />
                 </a>
             </div>
@@ -121,48 +124,51 @@
 	<div id="header">
 		<!--ko with: selectedProject -->
     		<a href="#" id="project-refresh-button" class="button" data-bind="click: load" title="refresh the project">
-				<img style="width:16px;height:16px" src="images/white/refresh_icon&16.png" />
+				<img style="width:32px;height:32px" src="images/white/refresh_icon&32.png" />
 			</a>
     		<a href="#!/projects/1" id="project-home-button" class="button" title="go to project home">
-				<img style="width:16px;height:16px" src="images/white/book_side_icon&16.png" />
+				<img style="width:32px;height:32px" src="images/white/book_side_icon&32.png" />
 			</a>
 			<span class="project-name-container">Project name</span>
 			<a href="#" id="project-save-button" class="button" data-bind="click: save" title="save the project">
-				<img style="width:16px;height:16px" src="images/white/save_icon&16.png" />
+				<img style="width:32px;height:32px" src="images/white/save_icon&32.png" />
 			</a>
 		<!-- /ko -->
         
 		<div style="float: right">
 			<a href="#!/dashboard" class="button" title="dashboard">
-				<img style="width:24px;height:24px" src="images/white/dashboard_icon&24.png" />
+				<img style="width:32px;height:32px" src="images/white/dashboard_icon&32.png" />
 			</a>
-			<span class="app-title font-effect-shadow-multiple" style="font-family: 'Oleo Script Swash Caps', cursive">Stella</span>
+			<span class="app-logo font-effect-shadow-multiple">Stella</span>
 		</div>
     
-        <span style="float:right;position:relative;top: 2px;" data-bind="visible: activeScene">
+        <span style="float:right;margin-right: 32px" data-bind="visible: activeScene">
             <a href="#" class="button" data-bind="click: activatePrevScene, css: {'button-disabled': !prevOfActiveScene()}" title="prev">
-            	<img style="width:16px;height:16px" src="images/white/round_arrow_left_icon&16.png" />
+            	<img style="width:32px;height:32px" src="images/white/round_arrow_left_icon&32.png" />
             </a>
             <a href="#" class="button" data-bind="click: deactivateScene" title="index">
-    			<img style="width:16px;height:16px" src="images/white/round_and_up_icon&16.png" />
+    			<img style="width:32px;height:32px" src="images/white/round_and_up_icon&32.png" />
             </a>
             <a href="#"  class="button" data-bind="click: activateNextScene, css: {'button-disabled': !nextOfActiveScene()}" title="next">
-            	<img style="width:16px;height:16px" src="images/white/round_arrow_right_icon&16.png" />
+            	<img style="width:32px;height:32px" src="images/white/round_arrow_right_icon&32.png" />
             </a>
         </span>
     </div><!-- end header -->
 	<!-- toolbar 2nd -->
     <div id="storyboard-menu" data-bind="visible: storyboard() && selectedProject() && !activeScene(), with: selectedProject">
-        <a href="#" class="button scene-up-button" data-bind="click: moveSceneUp" title="up" style="margin-left: 4px">
-            <img style="width:16px;height:16px" src="images/white/sq_up_icon&16.png" />
+		<a class="button scene-all-select-button" title="select/deselect" style="margin-left: 4px">
+			<img class="unchecked-image" style="width:24px;height:24px" src="images/black/checkbox_unchecked_icon&24.png" />
+			<img style="display:none" class="checked-image" style="width:24px;height:24px" src="images/black/checkbox_checked_icon&24.png" />
+		</a>
+        <a href="#" class="button scene-up-button" data-bind="click: moveSceneUp" title="up">
+            <img style="width:24px;height:24px" src="images/white/sq_up_icon&24.png" />
         </a>
         <a href="#" class="button scene-down-button" data-bind="click: moveSceneDown" title="down">
-            <img style="width:16px;height:16px" src="images/white/sq_down_icon&16.png" />
+            <img style="width:24px;height:24px" src="images/white/sq_down_icon&24.png" />
         </a>
-    	<a href="#" class="button scene-delete-button" data-bind="click: destroy" title="delete" style="margin-left: 8px">
-			<img style="width:16px;height:16px" src="images/white/delete_icon&16.png" />
+    	<a href="#" class="button scene-delete-button" data-bind="click: destroy" title="delete">
+			<img style="width:24px;height:24px" src="images/white/delete_icon&24.png" />
 		</a>
-		<span style="display: inline-block; width: 48px"></span>
         <span class="banner">Storyboard</span>
     </div>
 	<div id="myNicPanel" data-bind="visible: activeScene">

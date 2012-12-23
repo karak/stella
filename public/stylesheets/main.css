@@ -61,6 +61,21 @@ input:focus, textarea:focus {
 }
 /* end of highlight on focus*/
 
+a.checkbox img,
+a.button img {
+    opacity: 0.75;
+    z-index: 10;
+}
+a.checkbox:hover img,
+a.button:hover img {
+    opacity: 1.0;
+}
+a.checkbox.checkbox-disabled img,
+a.button.button-disabled img {
+    opacity: 0.25;
+}
+
+
 html, body {
     height: 100%;
 }
@@ -70,7 +85,7 @@ body {
 }
 
 #storyboard-main {
-    margin: 60px 0 0 0;
+    margin: 80px 0 0 0;
     padding: 0;
     overflow: visible;
 }
@@ -90,46 +105,35 @@ body {
     user-select: none;
 }
 
-#toolbar a.button img {
-    opacity: 0.8;
-}
-#toolbar a.button:hover img {
-    opacity: 1.0;
-}
-#toolbar a.button.button-disabled {
-    opacity: 0.25;
-}
-
 #header {
-    height: 28px;
+    height: 36px;
     padding: 2px 8px 2px 8px;
-}
-
-#header a.button {
-    position: relative;
-    top: 3px;
+    white-space: nowrap;
 }
 
 #header span.project-name-container {
     display: inline-block;
-    position: relative;
-    top: 2px;
     width: 240px;
     border-radius: 3px;
-    padding: 2px 4px;
-    line-height: 16px;
-    background-color:#FFFFFF;
+    padding: 4px;
+    line-height: 24px;
+    vertical-align: top;
+    font-size: 24px;
+    font-weight: normal;
+    background-color:#E0E0E0;
     color: #000000;
-    font-weight: bold;
     -webkit-user-select: text;
     -moz-user-select: text;
     -ms-user-select: text;
     user-select: text;
 }
 
-#header .app-title {
-    font-size: 20px;
-    font-family: serif;
+#header .app-logo {
+	position: relative;
+	top: 8px;
+    font-size: 24px;
+    font-family: 'Oleo Script Swash Caps', cursive;
+    vertical-align: top;
 }
 
 #storyboard-menu {
@@ -138,10 +142,24 @@ body {
     font-weight: bold;
 }
 
+#storyboard-menu .scene-up-button {
+	margin-left: 16px;
+}
+
+#storyboard-menu .scene-down-button {
+	margin-left: 0;
+}
+
+#storyboard-menu .scene-delete-button {
+	margin-left: 16px;
+}
+
 #storyboard-menu .banner {
     position: absolute;
-    top: auto;
-    right: 4px;
+    right: 8px;
+    vertical-align: text-bottom;
+    font-size: 20px;
+    font-family: sans-serif;
 }
 
 
@@ -160,7 +178,8 @@ body {
 /*************************************************/
 /* project home */
 #project-home-main {
-    padding: 36px 8px 8px 8px;
+	margin-top: 36px;
+    padding: 8px 8px 8px 8px;
 }
 
 #project-home-main .project-scene-list,
@@ -233,19 +252,31 @@ body {
 #scene-navi div.scene-container{
     position: relative;
     display: block;
-    padding-bottom: 4px;
-    margin-bottom: 2px;
-    border-bottom: dashed 1px #CCC;
+    padding-top: 0px;
+    padding-bottom: 2px;
+    border: solid 1px transparent;
+    margin-bottom: 8px;
 }
 
-#scene-navi div.scene-container.ghost {
-    border-style: dotted;
+#scene-navi div.scene-separator {
+	display: block;
+	position: relative;
+	height: 0;
+    margin-bottom: 8px;
+    border-bottom: 1px dashed #DDD;
+    opacity: 0.75;
+}
+
+#scene-navi div.scene-separator a.scene-insert-button {
+	position: absolute;
+	right: 52px;
+	bottom: -16px;
 }
 
 #scene-navi div.scene-header {
     position: relative;
     height: 24px;
-    padding: 2px 4px 2px 4px;
+    padding: 2px 4px 2px 36px;
     margin-bottom: 0.25em;
     vertical-align: text-top;
 }
@@ -295,6 +326,7 @@ body {
 
 #scene-navi div.scene-container.selected {
     background-color: #F0EDE7;
+    border-bottom-color: #DAD4CA;
 }
 #scene-navi div.scene-container.selected div.scene-header {
     background-color: #DAD4CA;
@@ -307,15 +339,14 @@ body {
 }
 
 #scene-navi .scene-row {
-    margin-left: 16px;
+    margin-left: 20px;
     display: -webkit-box;
     display: -moz-box;
 }
 
 #scene-navi .scene-events-edit {
     list-style: url(/images/black/cog_icon&16.png);
-    min-width: 240px;
-    width: 320px;
+    width: 20em;
     margin: 0; /* cancel default to <ul>*/
     min-height: 3em;
     -webkit-user-modify: read-write;
@@ -327,8 +358,7 @@ body {
     list-style: url(/images/black/flag_2_icon&16.png);
     margin: 0; /* cancel default to <ul>*/
     margin-left: 12px;
-    min-width: 228px;
-    width: 308px;
+    width: 20em;
     min-height: 3em;
     -webkit-user-modify: read-write;
     -moz-user-modify: read-write;
@@ -337,8 +367,8 @@ body {
 
 #scene-navi div.issue-list {
     list-style-image:url(/images/black/checkmark_icon&16.png);
-    min-width: 140px;
-    width: 180px;
+    min-width: 8em;
+    width: 20em;
     margin-left: 20px;
     -webkit-box-flex: 1;
     -moz-box-flex: 1;
@@ -356,8 +386,8 @@ body {
 #scene-edit {
     position: relative;
     display: block;
-    margin-top: 32px;
-    padding: 40px 8px 0 8px;
+    margin-top: 72px;
+    padding: 4px 8px 8px 8px;
 }
 
 #scene-edit .scene-title-edit {
