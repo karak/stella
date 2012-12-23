@@ -313,7 +313,7 @@ body {
 }
 
 #scene-navi .scene-events-edit {
-    list-style: url(/images/cog_icon&16.png);
+    list-style: url(/images/black/cog_icon&16.png);
     min-width: 240px;
     width: 320px;
     margin: 0; /* cancel default to <ul>*/
@@ -324,7 +324,7 @@ body {
 }
 
 #scene-navi .scene-consequence-edit {
-    list-style: url(/images/flag_2_icon&16.png);
+    list-style: url(/images/black/flag_2_icon&16.png);
     margin: 0; /* cancel default to <ul>*/
     margin-left: 12px;
     min-width: 228px;
@@ -336,7 +336,7 @@ body {
 }
 
 #scene-navi div.issue-list {
-    list-style-image:url(/images/checkmark_icon&16.png);
+    list-style-image:url(/images/black/checkmark_icon&16.png);
     min-width: 140px;
     width: 180px;
     margin-left: 20px;
@@ -368,11 +368,11 @@ body {
 }
 
 #scene-edit .scene-consequence-edit {
-    list-style: url(/images/flag_2_icon&16.png);
+    list-style: url(/images/black/flag_2_icon&16.png);
 }
 
 #scene-edit .scene-events-edit {
-    list-style: url(/images/cog_icon&16.png);
+    list-style: url(/images/black/cog_icon&16.png);
 }
 
 #scene-edit .scene-consequence-edit,
